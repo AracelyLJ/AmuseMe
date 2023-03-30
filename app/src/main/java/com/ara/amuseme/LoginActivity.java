@@ -60,7 +60,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(Task<DataSnapshot> task) {
                 if(!task.isSuccessful()) {
-                    Log.e("firebase", "Error obteniendo usuario.", task.getException());
+                    Log.e("firebase", "Error obteniendso usuario.", task.getException());
                 }else {
 
                     Log.d("firebase", String.valueOf(task.getResult().getValue()));
