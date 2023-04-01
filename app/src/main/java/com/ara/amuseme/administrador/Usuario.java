@@ -28,6 +28,11 @@ public class Usuario {
         this.estatus = estatus;
     }
 
+    public Usuario(String correo, String password) {
+        this.correo = correo;
+        this.password = password;
+    }
+
     public Usuario(String string, String correo, String nombre, String nickname, String password, String rol, String estatus) {
         this.key = "";
         this.correo = "";
