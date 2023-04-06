@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -15,10 +16,15 @@ import com.ara.amuseme.HomeEmpleado;
 import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
 import com.ara.amuseme.RegistrarContadores;
+import com.ara.amuseme.modelos.Maquina;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 // source: https://github.com/yuriy-budiyev/code-scanner
 public class QRCodeReader extends AppCompatActivity {
@@ -51,6 +57,7 @@ public class QRCodeReader extends AppCompatActivity {
                         String r = result.getText();
                         if(maquinasExistentes.contains(r)) {
                             Intent i = new Intent(QRCodeReader.this, RegistrarContadores.class);
+                            i.putExtra("nombre", r);
                             startActivity(i);
                         } else {
                             android.app.AlertDialog.Builder builder = new AlertDialog.Builder(QRCodeReader.this);
@@ -92,4 +99,5 @@ public class QRCodeReader extends AppCompatActivity {
         finish();
         super.onBackPressed();
     }
+
 }
