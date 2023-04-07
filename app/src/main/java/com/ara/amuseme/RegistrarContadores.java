@@ -2,7 +2,9 @@ package com.ara.amuseme;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -59,6 +61,8 @@ public class RegistrarContadores extends AppCompatActivity {
     private ArrayList<String> textContadores;
     private int contRegActual;
     private String idUsuario;
+    private ArrayList<String> nombresMaquinas;
+    private ArrayList<String> maquinasRegistradas;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,13 +84,27 @@ public class RegistrarContadores extends AppCompatActivity {
         camposFotos = new ArrayList<>();
         contRegActual = 0;
         idUsuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        maquinasRegistradas = new ArrayList<>();
 
         // Get extras
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
             Intent intent = getIntent();
+            nombresMaquinas = (ArrayList<String>) intent.getExtras().getSerializable("nombresMaquinas");
             String maq = intent.getExtras().getString("nombre");
             maquina.setNombre(maq);
+        } else
+            {
+            AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
+            builder.setMessage("Error obteniendo datos. Contacte al administrador.")
+                    .setPositiveButton("REGRESAR", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(RegistrarContadores.this, HomeEmpleado.class));
+                            finish();
+                        }
+                    })
+                    .setCancelable(false).show();
         }
 
         // Get data from database
@@ -226,8 +244,11 @@ public class RegistrarContadores extends AppCompatActivity {
                         int key = Integer.parseInt(ds.getKey());
                         if(contRegActual < key) contRegActual = key;
                     }
-
+                    for(DataSnapshot ds1: task.getResult().child(contRegActual+"").getChildren()) {
+                        maquinasRegistradas.add(ds1.getKey());
+                    }
                 }
+                if (maquinasRegistradas.size() == nombresMaquinas.size()) contRegActual++;
                 progressDialog.cancel();
             }
         };
@@ -280,8 +301,23 @@ public class RegistrarContadores extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference dbRef = database.getReference("registros_maquinas/"
-                + idUsuario + "/" + (contRegActual+1));
-        dbRef.push().setValue(nvoRegistro);
+                + idUsuario + "/" + (contRegActual));
+        dbRef.child(maquina.getNombre()).setValue(nvoRegistro);
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
+        String mensaje = "Máquina "+maquina.getAlias()+" registrada.";
+        if(maquinasRegistradas.size() == nombresMaquinas.size()){
+            mensaje+="\n Se terminaron de registrar todas las máquinas";
+        }
+        builder.setMessage(mensaje)
+                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        startActivity(new Intent(RegistrarContadores.this, HomeEmpleado.class));
+                        finish();
+                    }
+                })
+                .setCancelable(false).show();
 
 
     }

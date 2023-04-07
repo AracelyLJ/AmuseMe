@@ -58,6 +58,7 @@ public class QRCodeReader extends AppCompatActivity {
                         if(maquinasExistentes.contains(r)) {
                             Intent i = new Intent(QRCodeReader.this, RegistrarContadores.class);
                             i.putExtra("nombre", r);
+                            i.putExtra("nombresMaquinas",maquinasExistentes);
                             startActivity(i);
                         } else {
                             android.app.AlertDialog.Builder builder = new AlertDialog.Builder(QRCodeReader.this);
