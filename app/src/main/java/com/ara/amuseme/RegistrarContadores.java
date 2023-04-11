@@ -1,13 +1,19 @@
 package com.ara.amuseme;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,7 +40,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
@@ -45,6 +56,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
 import java.util.TimeZone;
 
 public class RegistrarContadores extends AppCompatActivity {
@@ -59,10 +72,15 @@ public class RegistrarContadores extends AppCompatActivity {
     private ArrayList<EditText> camposContadores;
     private ArrayList<ImageView> camposFotos;
     private ArrayList<String> textContadores;
+    private HashMap<String, Uri> mapFotos;
+    private HashMap<String, String> mapUrlFotos;
     private int contRegActual;
     private String idUsuario;
     private ArrayList<String> nombresMaquinas;
     private ArrayList<String> maquinasRegistradas;
+    private Uri photoUri;
+
+    static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +94,12 @@ public class RegistrarContadores extends AppCompatActivity {
         btnCamPrizes = findViewById(R.id.camPrizes);
         btnRegistrarMaquina = findViewById(R.id.registrarMaquina);
         txtDatosAnteriores = findViewById(R.id.datosAnteriores);
+        btnCamPrizes.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dispatchTakePictureIntent("*prizes");
+            }
+        });
 
         // Initializations
         maquina = new Maquina();
@@ -85,6 +109,9 @@ public class RegistrarContadores extends AppCompatActivity {
         contRegActual = 0;
         idUsuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
         maquinasRegistradas = new ArrayList<>();
+        mapFotos = new HashMap<>();
+        mapUrlFotos = new HashMap<>();
+
 
         // Get extras
         Bundle extras = getIntent().getExtras();
@@ -185,6 +212,7 @@ public class RegistrarContadores extends AppCompatActivity {
                     int i=0;
                     do {
                         ArrayList<EditText> editTexts = new ArrayList<>();
+                        String contador = sconts[i];
 
                         // Layout
                         ViewGroup layout = findViewById(R.id.content);
@@ -202,14 +230,14 @@ public class RegistrarContadores extends AppCompatActivity {
                         imageView.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Toast.makeText(RegistrarContadores.this, "Take photo", Toast.LENGTH_SHORT).show();
+                                dispatchTakePictureIntent(contador);
                             }
                         });
 
-                        textView.setText(sconts[i].toUpperCase());
+                        textView.setText(contador.toUpperCase());
                         editTexts.add(editText);
                         camposContadores.add(editText);
-                        textContadores.add(sconts[i]);
+                        textContadores.add(contador);
                         camposFotos.add(imageView);
 
                         layout.addView(linearLayout);
@@ -261,6 +289,7 @@ public class RegistrarContadores extends AppCompatActivity {
     }
 
     public void registrarContadores() {
+
         // Confirmar datos necesarios
         for (EditText e: camposContadores){
             if (TextUtils.isEmpty(e.getText().toString())){
@@ -268,8 +297,9 @@ public class RegistrarContadores extends AppCompatActivity {
                 return;
             }
         }
-        // Metadata
-            // Fecha y hora
+        // TODO: Fotos
+        // TODO: Valores válidos
+        // Fecha y hora
         Calendar calendar = Calendar.getInstance();
         Date date = new Date();
         SimpleDateFormat formatFecha = new SimpleDateFormat("yyyy/MM/dd", new Locale("es_MX"));
@@ -298,11 +328,14 @@ public class RegistrarContadores extends AppCompatActivity {
         for (int i=0; i<textContadores.size(); i++){
             nvoRegistro.put(textContadores.get(i), camposContadores.get(i).getText().toString());
         }
+        // Subir fotos de contadores registrados
+        uploadImages();
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference dbRef = database.getReference("registros_maquinas/"
                 + idUsuario + "/" + (contRegActual));
         dbRef.child(maquina.getNombre()).setValue(nvoRegistro);
+//        addUrls(); TODO: ESTO SE IMPLEMENTARÁ MEJOR EN EL ÁREA DE ADMIN
 
         AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
         String mensaje = "Máquina "+maquina.getAlias()+" registrada.";
@@ -319,6 +352,107 @@ public class RegistrarContadores extends AppCompatActivity {
                 })
                 .setCancelable(false).show();
 
+
+    }
+
+    private void dispatchTakePictureIntent(String contador) {
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (getApplicationContext().getPackageManager().hasSystemFeature(
+                PackageManager.FEATURE_CAMERA)) {
+            // this device has a camera
+
+            File photoFile = null;
+            try {
+                photoFile = createImageFile(contador);
+            } catch (IOException ex) {
+                // Error occurred while creating the File
+                Log.e("ERROR FOTO", "Error creando foto: "+ex.getMessage());
+            }
+            // Continue only if the File was successfully created
+            if (photoFile != null) {
+                photoUri = FileProvider.getUriForFile(this,
+                        "com.ara.amuseme.FileProvider",
+                        photoFile);
+                mapFotos.put(contador, photoUri);
+                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoUri);
+                startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
+            }
+        } else {
+            // no camera on this device
+            Toast.makeText(this, "No hay cámara en este dispositivo o está desactivada.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private File createImageFile(String contador) throws IOException {
+        // Create an image file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_"+maquina.getAlias()+"_"+contador+"_"+timeStamp;
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
+
+        // Save a file: path for use with ACTION_VIEW intents
+        return image;
+    }
+
+    public void uploadImages(){
+        try {
+            FirebaseStorage storage = FirebaseStorage.getInstance();
+            StorageReference storageReference;
+            storageReference = storage.getReference("fotos_contadores/" +
+                    idUsuario + "/" + contRegActual + "/" + maquina.getAlias().charAt(0) + "" +
+                    maquina.getAlias().charAt(1));
+            for (Map.Entry entry : mapFotos.entrySet()) {
+                final StorageReference ref = storageReference.child(maquina.getAlias() + "_" +
+                        maquina.getNombre() + "_" + entry.getKey());
+                ref.putFile((Uri) entry.getValue()) // mapFotos.get(entry.getKey())
+                        .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                            @Override
+                            public void onComplete(Task<UploadTask.TaskSnapshot> task) {
+                                if(task.isSuccessful()){
+                                    Log.d("Upload", "Imagen subida al servidor.");
+                                }else{
+                                    Log.e("Error Upload", "No se pudo subir imagen al servidor.");
+                                }
+                            }
+                        });
+            }
+        }catch (Exception e){
+            Log.e("ErrorUploadImages", Objects.requireNonNull(e.getMessage()));
+        }
+
+
+    }
+
+    public void addUrls() {
+        FirebaseStorage storage = FirebaseStorage.getInstance();
+        StorageReference storageReference;
+        storageReference = storage.getReference("fotos_contadores/" +
+                idUsuario + "/" + contRegActual + "/" + maquina.getAlias().charAt(0) + "" +
+                maquina.getAlias().charAt(1));
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        for (Map.Entry entry : mapFotos.entrySet()) {
+            final StorageReference ref = storageReference.child(maquina.getAlias() + "_" + entry.getKey());
+            ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUrl = task.getResult();
+                        Map<String,Object> url = new HashMap<>();
+                        url.put((String) entry.getKey(),downloadUrl.toString());
+                        DatabaseReference dbRef = database.getReference("registros_maquinas/"
+                                + idUsuario + "/" + contRegActual);
+                        dbRef.child(maquina.getNombre()).updateChildren(url);
+
+                    }else{
+                        Toast.makeText(RegistrarContadores.this, "ERROR2", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
     }
 
