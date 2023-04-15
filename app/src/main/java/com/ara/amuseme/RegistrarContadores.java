@@ -4,11 +4,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -27,6 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.ara.amuseme.modelos.Maquina;
+import com.ara.amuseme.modelos.Sucursal;
+import com.ara.amuseme.modelos.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -36,6 +41,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
@@ -50,8 +56,10 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -79,6 +87,9 @@ public class RegistrarContadores extends AppCompatActivity {
     private ArrayList<String> nombresMaquinas;
     private ArrayList<String> maquinasRegistradas;
     private Uri photoUri;
+    private String cveSucursal;
+    private Usuario usuario;
+    private Sucursal sucursal;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -111,6 +122,7 @@ public class RegistrarContadores extends AppCompatActivity {
         maquinasRegistradas = new ArrayList<>();
         mapFotos = new HashMap<>();
         mapUrlFotos = new HashMap<>();
+        usuario = new Usuario();
 
 
         // Get extras
@@ -118,8 +130,9 @@ public class RegistrarContadores extends AppCompatActivity {
         if(extras != null) {
             Intent intent = getIntent();
             nombresMaquinas = (ArrayList<String>) intent.getExtras().getSerializable("nombresMaquinas");
-            String maq = intent.getExtras().getString("nombre");
-            maquina.setNombre(maq);
+            usuario = getIntent().getExtras().getParcelable("usuario");
+            maquina = intent.getExtras().getParcelable("maquina");
+            cveSucursal = maquina.getAlias().charAt(0) + "" + maquina.getAlias().charAt(1);
         } else
             {
             AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
@@ -137,14 +150,19 @@ public class RegistrarContadores extends AppCompatActivity {
         // Get data from database
         getFirebaseData();
         getRegistroAnterior();
+        setContadores(maquina.getAlias());
 
         // Set views
+        txtNombreMaquina.setText("Máquina:  " + maquina.getAlias());
         btnRegistrarMaquina.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 registrarContadores();
             }
         });
+
+        // Validaciones
+
 
     }
 
@@ -157,32 +175,31 @@ public class RegistrarContadores extends AppCompatActivity {
 
     public void getFirebaseData() {
         ProgressDialog progressDialog = new ProgressDialog(RegistrarContadores.this);
-        progressDialog.setMessage("Obteniendo maquinas...");
+        progressDialog.setMessage("Obteniendo información...");
         progressDialog.setCancelable(false);
         progressDialog.show();
 
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        // Maquina
-        OnCompleteListener<QuerySnapshot> listenerMaq = new OnCompleteListener<QuerySnapshot>() {
+        // Sucursal
+        OnCompleteListener<QuerySnapshot> listenerSucursal = new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(Task<QuerySnapshot> task) {
+            public void onComplete(Task<QuerySnapshot  > task) {
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
-                    String alias = task.getResult().getDocuments().get(0).get("alias").toString();
-                    maquina.setAlias(alias);
-                    txtNombreMaquina.setText("Máquina:  " + maquina.getAlias());
+                    String clave = task.getResult().getDocuments().get(0).get("clave").toString();
+                    String maquinas = task.getResult().getDocuments().get(0).get("maquinas").toString();
+                    String nombre = task.getResult().getDocuments().get(0).get("nombre").toString();
+                    String ubicacion = task.getResult().getDocuments().get(0).get("ubicacion").toString();
+                    sucursal = new Sucursal(clave, maquinas, nombre, ubicacion);
                     progressDialog.cancel();
-                    setContadores(alias);
                 }
             }
         };
-        db.collection("maquinas")
-                .whereEqualTo("nombre", maquina.getNombre())
+        db.collection("sucursal")
+                .whereEqualTo("clave", cveSucursal)
                 .get()
-                .addOnCompleteListener(listenerMaq);
-
-
+                .addOnCompleteListener(listenerSucursal);
 
     }
 
@@ -323,7 +340,7 @@ public class RegistrarContadores extends AppCompatActivity {
         nvoRegistro.put("semanaFiscal",String.valueOf(numSemana));
         nvoRegistro.put("usuario", idUsuario);
         nvoRegistro.put("contRegistro",String.valueOf(contRegActual));
-        nvoRegistro.put("sucursal",maquina.getAlias().charAt(0)+""+maquina.getAlias().charAt(1));
+        nvoRegistro.put("sucursal",cveSucursal);
         nvoRegistro.put("tipoMaquina",maquina.getAlias().charAt(2)+""+maquina.getAlias().charAt(3));
         for (int i=0; i<textContadores.size(); i++){
             nvoRegistro.put(textContadores.get(i), camposContadores.get(i).getText().toString());
@@ -331,26 +348,70 @@ public class RegistrarContadores extends AppCompatActivity {
         // Subir fotos de contadores registrados
         uploadImages();
 
+        // Subir registro
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference dbRef = database.getReference("registros_maquinas/"
-                + idUsuario + "/" + (contRegActual));
-        dbRef.child(maquina.getNombre()).setValue(nvoRegistro);
-//        addUrls(); TODO: ESTO SE IMPLEMENTARÁ MEJOR EN EL ÁREA DE ADMIN
+        database.getReference("registros_maquinas/" + idUsuario + "/"
+                + (contRegActual)).child(maquina.getNombre()).setValue(nvoRegistro);
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
-        String mensaje = "Máquina "+maquina.getAlias()+" registrada.";
-        if(maquinasRegistradas.size() == nombresMaquinas.size()){
-            mensaje+="\n Se terminaron de registrar todas las máquinas";
+        // Actualizar usuario
+        String alias = maquina.getAlias();
+        String auxMaqReg = usuario.getMaqRegSuc();
+        String auxSucReg = usuario.getSucRegistradas();
+        ArrayList<String> maquinasRegistradas = new ArrayList<>();
+        ArrayList<String> maquinasPorRegistrar = new ArrayList<>
+                (Arrays.asList(sucursal.getMaquinas().replaceAll(" ","").split(",")));
+        ArrayList<String> sucursalesRegistradas = new ArrayList<>();
+        ArrayList<String> sucursalesPorRegistrar = new ArrayList<>
+                (Arrays.asList(usuario.getSucursales().replaceAll(" ","").split(",")));
+        Boolean regresarSinDialog = true;
+        String mensajeFinal="";
+
+        if (!auxMaqReg.equals("")) {
+            maquinasRegistradas = new ArrayList<>(Arrays.asList(usuario.getMaqRegSuc()
+                    .replaceAll(" ","").split(",")));
         }
-        builder.setMessage(mensaje)
-                .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        startActivity(new Intent(RegistrarContadores.this, HomeEmpleado.class));
-                        finish();
-                    }
-                })
-                .setCancelable(false).show();
+        if (!auxSucReg.equals("")) {
+            sucursalesRegistradas = new ArrayList<>(Arrays.asList(usuario.getSucRegistradas()
+                    .replaceAll(" ","").split(",")));
+        }
+
+        if (!maquinasRegistradas.contains(alias)) {
+            maquinasRegistradas.add(alias);
+        }
+        Collections.sort(maquinasPorRegistrar);
+        Collections.sort(maquinasRegistradas);
+        if (maquinasPorRegistrar.equals(maquinasRegistradas)){
+            mensajeFinal = "Se terminaron de registrar las máquinas de la sucursal: "+sucursal.getNombre();
+            maquinasRegistradas=new ArrayList<>();
+            sucursalesRegistradas.add(sucursal.getClave());
+            usuario.setSucRegistradas(sucursalesRegistradas.toString()
+                    .replace("[","").replace("]",""));
+            regresarSinDialog = false;
+        }
+        Collections.sort(sucursalesPorRegistrar);
+        Collections.sort(sucursalesRegistradas);
+        if (sucursalesPorRegistrar.equals(sucursalesRegistradas)){
+            mensajeFinal = "Se terminaron de registrar todas las maquinas de las sucursales " +
+                    "asignadas al usuario: " + usuario.getNombre();
+            usuario.setSucRegistradas("");
+            regresarSinDialog = false;
+        }
+        usuario.setMaqRegSuc(maquinasRegistradas.toString()
+                .replace("[","").replace("]",""));
+
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("usuarios").document(idUsuario).set(usuario);
+        if (regresarSinDialog) {
+            Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+            startActivity(intent);
+        } else {
+            mostrarMensajeFinal(mensajeFinal);
+        }
+        // TODO: AVISAR CUANDO LA SUCURSAL YA SE REVISÓ
+        // TODO: AVISAR CUANDO LA MÁQUINA YA SE REVISÓ
+        // TODO: AVISAR CUANDO SE REVISARON TODAS LAS SUCURSALES
+        // TODO: CHECAR QUE LA SUCURSAL QUE SE INTENTA REGISTRAR ESTÁ ASIGNADA AL USUARIO
+        // TODO: CHECAR QUE NO EMPIECE A REGISTRAR OTRA SUCURSAL SI EMPEZÓ OTRA (???
 
 
     }
@@ -403,8 +464,7 @@ public class RegistrarContadores extends AppCompatActivity {
             FirebaseStorage storage = FirebaseStorage.getInstance();
             StorageReference storageReference;
             storageReference = storage.getReference("fotos_contadores/" +
-                    idUsuario + "/" + contRegActual + "/" + maquina.getAlias().charAt(0) + "" +
-                    maquina.getAlias().charAt(1));
+                    idUsuario + "/" + contRegActual + "/" + cveSucursal);
             for (Map.Entry entry : mapFotos.entrySet()) {
                 final StorageReference ref = storageReference.child(maquina.getAlias() + "_" +
                         maquina.getNombre() + "_" + entry.getKey());
@@ -427,12 +487,43 @@ public class RegistrarContadores extends AppCompatActivity {
 
     }
 
+    public void mostrarMensajeFinal(String mensaje ) {
+        Dialog dialog = new Dialog(RegistrarContadores.this);
+        //se asigna el layout
+        dialog.setContentView(R.layout.cardview_message);
+        // Editar texto
+        TextView mensajeFinal = dialog.findViewById(R.id.mensajeFinal);
+        ImageView imgCloseDialog = dialog.findViewById(R.id.imgCloseDialog);
+        Button sucDoneButton = dialog.findViewById(R.id.sucDoneButton);
+        mensajeFinal.setText(mensaje);
+
+        imgCloseDialog.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+                startActivity(intent);
+            }
+        });
+        sucDoneButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+                startActivity(intent);
+            }
+        });
+
+        dialog.setCancelable(false);
+        dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        dialog.show();
+    }
+
     public void addUrls() {
         FirebaseStorage storage = FirebaseStorage.getInstance();
         StorageReference storageReference;
         storageReference = storage.getReference("fotos_contadores/" +
-                idUsuario + "/" + contRegActual + "/" + maquina.getAlias().charAt(0) + "" +
-                maquina.getAlias().charAt(1));
+                idUsuario + "/" + contRegActual + "/" + cveSucursal);
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         for (Map.Entry entry : mapFotos.entrySet()) {
             final StorageReference ref = storageReference.child(maquina.getAlias() + "_" + entry.getKey());

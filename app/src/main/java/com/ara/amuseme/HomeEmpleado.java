@@ -14,17 +14,17 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import com.ara.amuseme.Servicios.QRCodeReader;
+import com.ara.amuseme.modelos.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
 
@@ -33,6 +33,8 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
 
     private LinearLayout btnRegistrarContadores;
     private ArrayList<String> maquinas;
+    private FirebaseUser user;
+    private Usuario usuario;
 
     private static final int CODIGO_PERMISOS = 1;
 
@@ -47,6 +49,8 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         btnRegistrarContadores.setOnClickListener(this);
 
         maquinas = new ArrayList<>();
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        usuario = new Usuario();
         getDBdata();
 
 
@@ -76,11 +80,10 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.btnRegistrarContadores:
-//                Intent intent = new Intent(HomeEmpleado.this, RegistrarContadores.class);
-//                startActivity(intent);
                 Intent intent = new Intent(HomeEmpleado.this, QRCodeReader.class);
                 intent.putExtra("maquinas", maquinas);
                 intent.putExtra("actividad","contadores");
+                intent.putExtra("usuario", usuario);
                 startActivity(intent);
                 break;
             case R.id.cerrarSesionUser:
@@ -139,6 +142,31 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
             }
         };
         dbref.getReference("maquinas1").get().addOnCompleteListener(listener);
+        OnCompleteListener<DocumentSnapshot> listenerUsuario = new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(Task<DocumentSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    String correo = task.getResult().getData().get("correo").toString();
+                    String maqRegSuc = task.getResult().getData().get("maqRegSuc").toString();
+                    String nombre = task.getResult().getData().get("nombre").toString();
+                    String pw = task.getResult().getData().get("pw").toString();
+                    String porDepositar = task.getResult().getData().get("porDepositar").toString();
+                    String status = task.getResult().getData().get("status").toString();
+                    String sucRegistradas = task.getResult().getData().get("sucRegistradas").toString();
+                    String sucursales = task.getResult().getData().get("sucursales").toString();
+                    String tel = task.getResult().getData().get("tel").toString();
+                    usuario = new Usuario(correo, maqRegSuc, nombre, pw, porDepositar, status,
+                            sucRegistradas, sucursales, tel);
+                    setTitle(nombre);
+                }
+            }
+        };
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("usuarios").document(user.getUid())
+                .get()
+                .addOnCompleteListener(listenerUsuario);
 
 
     }

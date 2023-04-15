@@ -6,7 +6,7 @@ public class Usuario {
     private String correo;
     private String nombre;
     private String nickname;
-    private String password;
+    private String pw;
     private String rol;
     private String tel;
     private String sucursales;
@@ -19,7 +19,7 @@ public class Usuario {
         this.correo = "";
         this.nombre = "";
         this.nickname = "";
-        this.password = "";
+        this.pw = "";
         this.rol = "";
         this.tel = "";
         this.sucursales = null;
@@ -28,17 +28,17 @@ public class Usuario {
         this.estatus = estatus;
     }
 
-    public Usuario(String correo, String password) {
+    public Usuario(String correo, String pw) {
         this.correo = correo;
-        this.password = password;
+        this.pw = pw;
     }
 
-    public Usuario(String string, String correo, String nombre, String nickname, String password, String rol, String estatus) {
+    public Usuario(String string, String correo, String nombre, String nickname, String pw, String rol, String estatus) {
         this.key = "";
         this.correo = "";
         this.nombre = "";
         this.nickname = "";
-        this.password = "";
+        this.pw = "";
         this.rol = "";
         this.tel = "";
         this.sucursales = null;
@@ -47,12 +47,12 @@ public class Usuario {
         this.estatus = estatus;
     }
 
-    public Usuario(String key, String correo, String nombre, String nickname, String password, String rol, String tel, String sucursales, String fotoPersonal, String fotoIFE, String estatus) {
+    public Usuario(String key, String correo, String nombre, String nickname, String pw, String rol, String tel, String sucursales, String fotoPersonal, String fotoIFE, String estatus) {
         this.key = key;
         this.correo = correo;
         this.nombre = nombre;
         this.nickname = nickname;
-        this.password = password;
+        this.pw = pw;
         this.rol = rol;
         this.tel = tel;
         this.sucursales = sucursales;
@@ -93,12 +93,12 @@ public class Usuario {
         this.nickname = nickname;
     }
 
-    public String getPassword() {
-        return password;
+    public String getpw() {
+        return pw;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void setpw(String pw) {
+        this.pw = pw;
     }
 
     public String getRol() {

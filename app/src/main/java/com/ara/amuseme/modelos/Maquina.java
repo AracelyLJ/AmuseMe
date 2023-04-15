@@ -1,6 +1,9 @@
 package com.ara.amuseme.modelos;
 
-public class Maquina {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class Maquina implements Parcelable {
 
     private String alias;
     private String imagen;
@@ -28,6 +31,26 @@ public class Maquina {
         this.observaciones = observaciones;
         this.renta = renta;
     }
+
+    protected Maquina(Parcel in) {
+        alias = in.readString();
+        imagen = in.readString();
+        nombre = in.readString();
+        observaciones = in.readString();
+        renta = in.readString();
+    }
+
+    public static final Creator<Maquina> CREATOR = new Creator<Maquina>() {
+        @Override
+        public Maquina createFromParcel(Parcel in) {
+            return new Maquina(in);
+        }
+
+        @Override
+        public Maquina[] newArray(int size) {
+            return new Maquina[size];
+        }
+    };
 
     public String getAlias() {
         return alias;
@@ -67,5 +90,30 @@ public class Maquina {
 
     public void setRenta(String renta) {
         this.renta = renta;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(alias);
+        parcel.writeString(imagen);
+        parcel.writeString(nombre);
+        parcel.writeString(observaciones);
+        parcel.writeString(renta);
+    }
+
+    @Override
+    public String toString() {
+        return "Maquina{" +
+                "alias='" + alias + '\'' +
+                ", imagen='" + imagen + '\'' +
+                ", nombre='" + nombre + '\'' +
+                ", observaciones='" + observaciones + '\'' +
+                ", renta='" + renta + '\'' +
+                '}';
     }
 }

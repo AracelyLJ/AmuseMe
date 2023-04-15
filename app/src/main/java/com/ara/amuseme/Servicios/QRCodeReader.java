@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
@@ -17,12 +16,15 @@ import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
 import com.ara.amuseme.RegistrarContadores;
 import com.ara.amuseme.modelos.Maquina;
+import com.ara.amuseme.modelos.Sucursal;
+import com.ara.amuseme.modelos.Usuario;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -31,7 +33,10 @@ public class QRCodeReader extends AppCompatActivity {
 
     private CodeScanner mCodeScanner;
     private ArrayList<String> maquinasExistentes;
-    String actividad;
+    private String actividad;
+    private Usuario usuario;
+    private String result;
+    private Maquina maquina;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,11 +44,16 @@ public class QRCodeReader extends AppCompatActivity {
         setContentView(R.layout.activity_q_r_code_reader);
 
         maquinasExistentes = new ArrayList<>();
+        usuario = new Usuario();
+        maquina = new Maquina();
+
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
             Intent intent = getIntent();
             maquinasExistentes = (ArrayList<String>) intent.getExtras().getSerializable("maquinas");
             actividad = intent.getExtras().getString("activity");
+            usuario = intent.getExtras().getParcelable("usuario");
+            result = "";
         }
 
         CodeScannerView scannerView = findViewById(R.id.scanner_view);
@@ -56,10 +66,7 @@ public class QRCodeReader extends AppCompatActivity {
                     public void run() {
                         String r = result.getText();
                         if(maquinasExistentes.contains(r)) {
-                            Intent i = new Intent(QRCodeReader.this, RegistrarContadores.class);
-                            i.putExtra("nombre", r);
-                            i.putExtra("nombresMaquinas",maquinasExistentes);
-                            startActivity(i);
+                            pasaraRegistro(r);
                         } else {
                             android.app.AlertDialog.Builder builder = new AlertDialog.Builder(QRCodeReader.this);
                             builder.setMessage("La máquina que intentas registrar no existe.")
@@ -99,6 +106,40 @@ public class QRCodeReader extends AppCompatActivity {
     public void onBackPressed() {
         finish();
         super.onBackPressed();
+    }
+
+    public void pasaraRegistro(String r) {
+        result = r;
+
+        // Sucursal
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        OnCompleteListener<QuerySnapshot> listenerSucursal = new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot  > task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    String alias = task.getResult().getDocuments().get(0).get("alias").toString();
+                    String imagen = task.getResult().getDocuments().get(0).get("imagen").toString();
+                    String nombre = task.getResult().getDocuments().get(0).get("nombre").toString();
+                    String observaciones = task.getResult().getDocuments().get(0).get("observaciones").toString();
+                    String renta = task.getResult().getDocuments().get(0).get("renta").toString();
+                    maquina = new Maquina(alias, imagen, nombre, observaciones, renta);
+                    Intent i = new Intent(QRCodeReader.this, RegistrarContadores.class);
+                    i.putExtra("nombresMaquinas",maquinasExistentes);
+                    i.putExtra("usuario", usuario);
+                    i.putExtra("maquina",maquina);
+                    startActivity(i);
+                }
+            }
+        };
+        db.collection("maquinas")
+                .whereEqualTo("nombre", result)
+                .get()
+                .addOnCompleteListener(listenerSucursal);
+
+
+
     }
 
 }
