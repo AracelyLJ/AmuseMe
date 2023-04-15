@@ -162,8 +162,7 @@ public class RegistrarContadores extends AppCompatActivity {
         });
 
         // Validaciones
-
-
+        validarDatos("inicio");
     }
 
     @Override
@@ -201,6 +200,95 @@ public class RegistrarContadores extends AppCompatActivity {
                 .get()
                 .addOnCompleteListener(listenerSucursal);
 
+    }
+
+    public boolean validarDatos(String accion) {
+
+        String mensaje = "";
+        String botonSi = "SI";
+        boolean regresar = false;
+
+        if (accion.equals("inicio")){
+            String sucsReg = usuario.getSucRegistradas();
+            String maqsReg = usuario.getMaqRegSuc();
+            String sucsAsignadas = usuario.getSucursales();
+            String maqRegSuc = usuario.getMaqRegSuc(); // Checar que no empieze a registrar otra
+            if (!sucsReg.equals("") && sucsReg.contains(cveSucursal)) { // Checa si ya se registró esta sucursal
+                mensaje = "Esta sucursal ya fué registrada. ¿Deseas reiniciar el registo?";
+                usuario.setSucRegistradas(
+                        usuario.getSucRegistradas().replaceAll(cveSucursal,""));
+
+            } else
+            if (maqsReg.contains(maquina.getAlias())) { // Checa si ya se regisró esta máquina
+                mensaje = "Esta máquina ya fué registrada. ¿Deseas reiniciar el registro?";
+            } else
+            if (!sucsAsignadas.contains(cveSucursal)) { // Checa si el user tiene esta suc asignada
+                mensaje = "No estás asignado para registrar esta sucursal. Contacta a tu administrador.";
+                botonSi = "OK";
+                regresar = true;
+                usuario.setMaqRegSuc(
+                        usuario.getMaqRegSuc().replaceAll(cveSucursal,""));
+            } else
+            if (!maqRegSuc.equals("")) {               // sucursal si no ha terminado la actual
+                String suc = usuario.getMaqRegSuc().substring(0,2);
+                if (!suc.equals(cveSucursal)){
+                    mensaje = "No has terminado de registrar la sucursal: "+suc;
+                    botonSi = "OK";
+                    regresar = true;
+                }
+            }
+        } else {
+            for (EditText e: camposContadores){ // Checar que se llenaron todos los campos
+                if (TextUtils.isEmpty(e.getText().toString())){
+                    e.setError("Este campo debe ser registrado.");
+                    return false;
+                }
+            }
+            if (mapFotos.size()!=textContadores.size()) { // Checar que se tomaron todas las fotos
+                mensaje = "Es necesario tomar foto de todos los contadores.";
+                botonSi = "OK";
+            }
+            // Todo: Checar los valores de contadores no sean menores al anterior
+        }
+        final boolean valRegresar = regresar;
+        if (!mensaje.equals("")) {
+            Dialog dialog = new Dialog(RegistrarContadores.this);
+            dialog.setContentView(R.layout.cardview_validacion_de_datos);
+            // Editar texto
+            TextView mensajeFinal = dialog.findViewById(R.id.mensaje);
+            Button siButton = dialog.findViewById(R.id.si_button);
+            Button noButton = dialog.findViewById(R.id.no_button);
+            mensajeFinal.setText(mensaje);
+            siButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                    if (valRegresar) startActivity(new Intent(RegistrarContadores.this,
+                            HomeEmpleado.class));
+                }
+            });
+            if (botonSi == "OK") {
+                siButton.setText("OK");
+                noButton.setVisibility(View.GONE);
+            } else{
+                noButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(RegistrarContadores.this,
+                                HomeEmpleado.class));
+                        dialog.dismiss();
+                        if (valRegresar) startActivity(new Intent(RegistrarContadores.this,
+                                HomeEmpleado.class));
+                    }
+                });
+            }
+
+            dialog.setCancelable(false);
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            dialog.show();
+            return false;
+        }
+        return true;
     }
 
     public void setContadores(String alias) {
@@ -306,16 +394,8 @@ public class RegistrarContadores extends AppCompatActivity {
     }
 
     public void registrarContadores() {
+        if (!validarDatos("final")) return;
 
-        // Confirmar datos necesarios
-        for (EditText e: camposContadores){
-            if (TextUtils.isEmpty(e.getText().toString())){
-                e.setError("Este campo debe ser registrado.");
-                return;
-            }
-        }
-        // TODO: Fotos
-        // TODO: Valores válidos
         // Fecha y hora
         Calendar calendar = Calendar.getInstance();
         Date date = new Date();
@@ -407,12 +487,6 @@ public class RegistrarContadores extends AppCompatActivity {
         } else {
             mostrarMensajeFinal(mensajeFinal);
         }
-        // TODO: AVISAR CUANDO LA SUCURSAL YA SE REVISÓ
-        // TODO: AVISAR CUANDO LA MÁQUINA YA SE REVISÓ
-        // TODO: AVISAR CUANDO SE REVISARON TODAS LAS SUCURSALES
-        // TODO: CHECAR QUE LA SUCURSAL QUE SE INTENTA REGISTRAR ESTÁ ASIGNADA AL USUARIO
-        // TODO: CHECAR QUE NO EMPIECE A REGISTRAR OTRA SUCURSAL SI EMPEZÓ OTRA (???
-
 
     }
 
@@ -517,34 +591,6 @@ public class RegistrarContadores extends AppCompatActivity {
         dialog.setCancelable(false);
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
-    }
-
-    public void addUrls() {
-        FirebaseStorage storage = FirebaseStorage.getInstance();
-        StorageReference storageReference;
-        storageReference = storage.getReference("fotos_contadores/" +
-                idUsuario + "/" + contRegActual + "/" + cveSucursal);
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        for (Map.Entry entry : mapFotos.entrySet()) {
-            final StorageReference ref = storageReference.child(maquina.getAlias() + "_" + entry.getKey());
-            ref.getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                @Override
-                public void onComplete(Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        Uri downloadUrl = task.getResult();
-                        Map<String,Object> url = new HashMap<>();
-                        url.put((String) entry.getKey(),downloadUrl.toString());
-                        DatabaseReference dbRef = database.getReference("registros_maquinas/"
-                                + idUsuario + "/" + contRegActual);
-                        dbRef.child(maquina.getNombre()).updateChildren(url);
-
-                    }else{
-                        Toast.makeText(RegistrarContadores.this, "ERROR2", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            });
-        }
-
     }
 
 }
