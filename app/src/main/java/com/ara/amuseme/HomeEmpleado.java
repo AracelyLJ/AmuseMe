@@ -14,8 +14,9 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
-import com.ara.amuseme.Servicios.QRCodeReader;
+import com.ara.amuseme.servicios.QRCodeReader;
 import com.ara.amuseme.modelos.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -148,25 +149,31 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
+                    String contRegistro = task.getResult().getData().get("contRegistro").toString();
                     String correo = task.getResult().getData().get("correo").toString();
+                    String id = task.getResult().getData().get("id").toString();
                     String maqRegSuc = task.getResult().getData().get("maqRegSuc").toString();
                     String nombre = task.getResult().getData().get("nombre").toString();
-                    String pw = task.getResult().getData().get("pw").toString();
                     String porDepositar = task.getResult().getData().get("porDepositar").toString();
+                    String pw = task.getResult().getData().get("pw").toString();
+                    String rol = task.getResult().getData().get("rol").toString();
                     String status = task.getResult().getData().get("status").toString();
                     String sucRegistradas = task.getResult().getData().get("sucRegistradas").toString();
                     String sucursales = task.getResult().getData().get("sucursales").toString();
                     String tel = task.getResult().getData().get("tel").toString();
-                    usuario = new Usuario(correo, maqRegSuc, nombre, pw, porDepositar, status,
-                            sucRegistradas, sucursales, tel);
+                    usuario = new Usuario(contRegistro, correo, id, maqRegSuc, nombre, porDepositar,
+                            pw, rol, status, sucRegistradas, sucursales, tel);
                     setTitle(nombre);
                 }
             }
         };
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        db.collection("usuarios").document(user.getUid())
-                .get()
-                .addOnCompleteListener(listenerUsuario);
+        try {
+            db.collection("usuarios").document(user.getUid()).get()
+                    .addOnCompleteListener(listenerUsuario);
+        }catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
 
 
     }

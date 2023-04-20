@@ -5,34 +5,45 @@ import android.os.Parcelable;
 
 public class Usuario implements Parcelable {
 
+    private String contRegistro;
     private String correo;
+    private String id;
     private String maqRegSuc;
     private String nombre;
     private String pw;
     private String porDepositar;
+    private String rol;
     private String status;
     private String sucRegistradas;
     private String sucursales;
     private String tel;
 
     public Usuario(){
+        contRegistro="";
         correo="";
+        id = "";
         maqRegSuc="";
         nombre="";
         pw="";
         porDepositar="";
+        rol = "";
         status="";
         sucRegistradas="";
         sucursales="";
         tel="";
     }
 
-    public Usuario(String correo, String maqRegSuc, String nombre, String pw, String porDepositar, String status, String sucRegistradas, String sucursales, String tel) {
+    public Usuario(String contRegistro, String correo, String id, String maqRegSuc, String nombre,
+                   String pw, String porDepositar, String rol, String status, String sucRegistradas,
+                   String sucursales, String tel) {
+        this.contRegistro = contRegistro;
         this.correo = correo;
+        this.id = id;
         this.maqRegSuc = maqRegSuc;
         this.nombre = nombre;
-        this.pw = pw;
         this.porDepositar = porDepositar;
+        this.pw = pw;
+        this.rol = rol;
         this.status = status;
         this.sucRegistradas = sucRegistradas;
         this.sucursales = sucursales;
@@ -40,11 +51,14 @@ public class Usuario implements Parcelable {
     }
 
     protected Usuario(Parcel in) {
+        contRegistro = in.readString();
         correo = in.readString();
+        id = in.readString();
         maqRegSuc = in.readString();
         nombre = in.readString();
-        pw = in.readString();
         porDepositar = in.readString();
+        pw = in.readString();
+        rol = in.readString();
         status = in.readString();
         sucRegistradas = in.readString();
         sucursales = in.readString();
@@ -71,6 +85,14 @@ public class Usuario implements Parcelable {
         this.correo = correo;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getMaqRegSuc() {
         return maqRegSuc;
     }
@@ -87,20 +109,20 @@ public class Usuario implements Parcelable {
         this.nombre = nombre;
     }
 
-    public String getpw() {
-        return pw;
-    }
-
-    public void setpw(String pw) {
-        this.pw = pw;
-    }
-
     public String getPorDepositar() {
         return porDepositar;
     }
 
     public void setPorDepositar(String porDepositar) {
         this.porDepositar = porDepositar;
+    }
+
+    public String getRol() {
+        return rol;
+    }
+
+    public void setRol(String rol) {
+        this.rol = rol;
     }
 
     public String getStatus() {
@@ -135,6 +157,22 @@ public class Usuario implements Parcelable {
         this.tel = tel;
     }
 
+    public String getContRegistro() {
+        return contRegistro;
+    }
+
+    public void setContRegistro(String contRegistro) {
+        this.contRegistro = contRegistro;
+    }
+
+    public String getPw() {
+        return pw;
+    }
+
+    public void setPw(String pw) {
+        this.pw = pw;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -142,11 +180,14 @@ public class Usuario implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(contRegistro);
         parcel.writeString(correo);
+        parcel.writeString(id);
         parcel.writeString(maqRegSuc);
         parcel.writeString(nombre);
-        parcel.writeString(pw);
         parcel.writeString(porDepositar);
+        parcel.writeString(pw);
+        parcel.writeString(rol);
         parcel.writeString(status);
         parcel.writeString(sucRegistradas);
         parcel.writeString(sucursales);
@@ -156,11 +197,13 @@ public class Usuario implements Parcelable {
     @Override
     public String toString() {
         return "Usuario{" +
-                "correo='" + correo + '\'' +
+                "contRegistro='" + contRegistro + '\'' +
+                ", correo='" + correo + '\'' +
+                ", id='" + id + '\'' +
                 ", maqRegSuc='" + maqRegSuc + '\'' +
                 ", nombre='" + nombre + '\'' +
-                ", pw='" + pw + '\'' +
                 ", porDepositar='" + porDepositar + '\'' +
+                ", pw='" + pw + '\'' +
                 ", status='" + status + '\'' +
                 ", sucRegistradas='" + sucRegistradas + '\'' +
                 ", sucursales='" + sucursales + '\'' +

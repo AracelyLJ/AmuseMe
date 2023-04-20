@@ -1,4 +1,4 @@
-package com.ara.amuseme.Servicios;
+package com.ara.amuseme.servicios;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -12,19 +12,15 @@ import android.view.View;
 import java.util.ArrayList;
 
 import com.ara.amuseme.HomeEmpleado;
-import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
 import com.ara.amuseme.RegistrarContadores;
 import com.ara.amuseme.modelos.Maquina;
-import com.ara.amuseme.modelos.Sucursal;
 import com.ara.amuseme.modelos.Usuario;
 import com.budiyev.android.codescanner.CodeScanner;
 import com.budiyev.android.codescanner.CodeScannerView;
 import com.budiyev.android.codescanner.DecodeCallback;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 

@@ -95,14 +95,27 @@
                 android:id="@+id/datosAnteriores"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:textColor="@color/colorWhite"
                 android:gravity="center"
-                android:text="DATOS DE LA SEMANA ANTERIOR"/>
+                android:text="DATOS DE LA SEMANA ANTERIOR:"/>
+            <TextView
+                android:id="@+id/datosAnteriores1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="2dp"
+                android:textColor="@color/colorWhite"
+                android:gravity="center"
+                android:text=""/>
+            <TextView
+                android:id="@+id/datosAnteriores2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="10dp"
+                android:textColor="@color/colorWhite"
+                android:gravity="center"
+                android:text=""/>
 
-            <ImageView
-                android:id="@+id/foto"
-                android:layout_width="200dp"
-                android:layout_height="200dp"/>
 
         </LinearLayout>
 

@@ -7,6 +7,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
@@ -16,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AmuseMe">
-        <activity android:name=".Servicios.QRCodeReader"></activity>
+        <activity android:name=".servicios.QRCodeReader"></activity>
         <activity android:name=".RegistrarContadores" />
         <activity android:name=".HomeEmpleado" />
         <activity android:name=".LoginActivity" />
