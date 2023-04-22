@@ -557,6 +557,8 @@ public class RegistrarContadores extends AppCompatActivity {
         db.collection("usuarios").document(idUsuario).set(usuario);
         db.collection("registros_maquinas").document(idUsuario).
                 collection(contRegActual+"").document(alias).set(registroActual);
+
+        registrarCalculo();
         if (regresarSinDialog) {
             Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
             startActivity(intent);
@@ -564,6 +566,56 @@ public class RegistrarContadores extends AppCompatActivity {
             mostrarMensajeFinal(mensajeFinal);
         }
 
+    }
+
+    public void registrarCalculo() {
+
+        HashMap<String, String> restasContador = new HashMap<>();
+        for (String contador: textContadores){
+            int valRegActual = Integer.parseInt(registroActual.getContadores().get(contador));
+            int valRegAnterior = Integer.parseInt(registroAnterior.getContadores().get(contador));
+            restasContador.put(contador,String.valueOf((valRegActual-valRegAnterior)));
+        }
+        FirebaseDatabase.getInstance().getReference("calculos/" + usuario.getId())
+                .child(contRegActual+"").child(cveSucursal).child(maquina.getAlias())
+                .setValue(restasContador);
+        FirebaseDatabase.getInstance().getReference("calculos/"+usuario.getId()+"/"+contRegActual)
+                .get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    HashMap<String, String> totalSemana = new HashMap<>();
+                    HashMap<String, HashMap<String,String>> totalSucursales = new HashMap<>();
+
+                    for (DataSnapshot ds: task.getResult().getChildren()) {
+                        HashMap<String, String> totalSucursal = new HashMap<>();
+                        for (DataSnapshot ds1: ds.getChildren()){ // maquinas, key=SRBR02
+                            if (!ds1.getKey().equals("total")){
+                                for (DataSnapshot ds2: ds1.getChildren()){ // contadores, key=*coins
+                                    int val = Integer.parseInt(ds2.getValue().toString());
+                                    if (totalSucursal.containsKey(ds2.getKey())){
+                                        int sumaAcumulada = Integer.parseInt(totalSucursal.get(ds2.getKey()));
+                                        totalSucursal.put(ds2.getKey(),String.valueOf(sumaAcumulada+val));
+                                    } else {
+                                        totalSucursal.put(ds2.getKey(),ds2.getValue().toString());
+                                    }
+                                    if (totalSemana.containsKey(ds2.getKey())) {
+                                        int sumaAcumulada = Integer.parseInt(totalSemana.get(ds2.getKey()));
+                                        totalSemana.put(ds2.getKey(),String.valueOf(sumaAcumulada+val));
+                                    } else{
+                                        totalSemana.put(ds2.getKey(), ds2.getValue().toString());
+                                    }
+                                }
+                            }
+                            FirebaseDatabase.getInstance().getReference().child("calculos").child(usuario.getId())
+                                    .child(contRegActual+"").child(ds.getKey()).child("total").setValue(totalSucursal);
+                        }
+                    }
+                    FirebaseDatabase.getInstance().getReference().child("calculos").child(usuario.getId())
+                            .child(contRegActual+"").child("total").setValue(totalSemana);
+                }
+            }
+        });
     }
 
     private void dispatchTakePictureIntent(String contador) {

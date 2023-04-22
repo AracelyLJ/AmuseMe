@@ -17,7 +17,19 @@ public class RegistroMaquina {
     private String usuario;
     private HashMap<String, String> contadores;
 
-    public RegistroMaquina() {    }
+    public RegistroMaquina() {
+        this.alias = "0";
+        this.contRegistro = "0";
+        this.fecha = "0";
+        this.hora = "0";
+        this.nombre = "0";
+        this.semanaFiscal = "0";
+        this.sucursal = "0";
+        this.tipoMaquina = "0";
+        this.ubicacion = "0";
+        this.usuario = "0";
+        this.contadores = new HashMap<>();
+    }
 
     public RegistroMaquina(String alias, String contRegistro, String fecha, String hora,
                            String nombre, String semanaFiscal, String sucursal, String tipoMaquina,

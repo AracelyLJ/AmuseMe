@@ -134,7 +134,7 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                     Log.e("firebase", "Error getting data", task.getException());
                 }
                 else {
-                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
+//                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
                     for (DataSnapshot ds: task.getResult().getChildren()) {
                         maquinas.add(ds.getKey());
                     }
