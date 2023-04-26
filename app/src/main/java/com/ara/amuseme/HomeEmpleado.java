@@ -26,13 +26,17 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class HomeEmpleado extends AppCompatActivity implements View.OnClickListener {
 
     private LinearLayout btnRegistrarContadores;
+    private LinearLayout btnRegistrarDeposito;
     private ArrayList<String> maquinas;
     private FirebaseUser user;
     private Usuario usuario;
@@ -47,7 +51,9 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         checarPermisos();
 
         btnRegistrarContadores = findViewById(R.id.btnRegistrarContadores);
+        btnRegistrarDeposito = findViewById(R.id.btnRegistrarDeposito);
         btnRegistrarContadores.setOnClickListener(this);
+        btnRegistrarDeposito.setOnClickListener(this);
 
         maquinas = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -87,10 +93,60 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra("usuario", usuario);
                 startActivity(intent);
                 break;
+            case R.id.btnRegistrarDeposito:
+
+                break;
             case R.id.cerrarSesionUser:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(HomeEmpleado.this, LoginActivity.class));
                 break;
+        }
+    }
+
+    public void scripParaRealizarCalculos() {
+        OnCompleteListener<QuerySnapshot> listenerUsuario = new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    HashMap<String, HashMap<String, String>> maquina = new HashMap<>();
+                    for (DocumentSnapshot d: task.getResult().getDocuments()) {
+                        String maq = d.getData().get("contadores").toString().replaceAll(" ","")
+                                .replace("{","").replace("}","");
+                        String conts[] = maq.split(",");
+                        HashMap<String, String> contador = new HashMap<>();
+                        for (String valor: conts){
+                            String v[] = valor.split("=");
+                            contador.put(v[0],v[1]);
+                        }
+                        maquina.put(d.getId(),contador);
+                    }
+
+                    HashMap<String, HashMap<String, HashMap<String,String>>> porSucursal = new HashMap<>();
+                    HashMap<String, HashMap<String, String>> porMaquina = new HashMap<>();
+                    for (Map.Entry<String,HashMap<String, String>> maq: maquina.entrySet()) {
+                        String suc = maq.getKey().substring(0,2);
+                        if (porSucursal.containsKey(suc)) {
+                            porMaquina.put(maq.getKey(),maq.getValue());
+                        } else {
+                            porMaquina = new HashMap<>();
+                            porMaquina.put(maq.getKey(), maq.getValue());
+                            porSucursal.put(suc,porMaquina);
+                        }
+                    }
+                    for (Map.Entry<String,HashMap<String, HashMap<String, String >>> sucursal: porSucursal.entrySet()) {
+                        Toast.makeText(HomeEmpleado.this, sucursal.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        };
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        try {
+            db.collection("registros_maquinas").document(user.getUid()).collection("17").get()
+                    .addOnCompleteListener(listenerUsuario);
+        }catch (Exception e) {
+            Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 

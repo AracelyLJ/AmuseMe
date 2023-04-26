@@ -548,6 +548,7 @@ public class RegistrarContadores extends AppCompatActivity {
                     "asignadas al usuario: " + usuario.getNombre();
             usuario.setSucRegistradas("");
             usuario.setContRegistro(String.valueOf(contRegActual+1));
+            enviarCalculos();
             regresarSinDialog = false;
         }
         usuario.setMaqRegSuc(maquinasRegistradas.toString()
@@ -721,4 +722,42 @@ public class RegistrarContadores extends AppCompatActivity {
         dialog.show();
     }
 
+
+    public void enviarCalculos() {
+
+        FirebaseDatabase.getInstance().getReference("calculos/"+usuario.getId()+"/19")
+                .get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(Task<DataSnapshot> task) {
+                if (task.isSuccessful()) {
+                    String strCalculos = "El usuario: "+usuario.getNombre()+" terminó de registrar " +
+                            "las máquinas de las sucursales registradas.<br><br>";
+                    for (DataSnapshot ds: task.getResult().getChildren()) {
+                        strCalculos += "<br><br>&nbsp&nbsp"+ds.getKey();
+                        for (DataSnapshot ds1: ds.getChildren()) {
+                            if (!ds.getKey().equals("total")) {
+                                strCalculos += "<br>&nbsp&nbsp&nbsp&nbsp"+ds1.getKey();
+                                for (DataSnapshot ds2: ds1.getChildren()) {
+                                    String contadores = ds2.getKey()+": "+ ds2.getValue().toString();
+                                    strCalculos+= "<br>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp" + contadores;
+                                }
+                            }else{
+                                strCalculos += "<br>&nbsp&nbsp&nbsp&nbsp"+
+                                        ds1.getKey()+": "+ ds1.getValue().toString();
+                            }
+                        }
+                    }
+                    Map<String, String> mensaje = new HashMap<>();
+                    Map<String, Object> mail = new HashMap<>();
+                    mensaje.put("subject","Amuseme. Máquinas registradas");
+                    mensaje.put("texto", strCalculos);
+                    mensaje.put("html", strCalculos);
+                    mail.put("to",Utils.ADMINISTRADORES);
+                    mail.put("message",mensaje);
+                    FirebaseFirestore db = FirebaseFirestore.getInstance();
+                    db.collection("mail").document().set(mail);
+                }
+            }
+        });
+    }
 }
