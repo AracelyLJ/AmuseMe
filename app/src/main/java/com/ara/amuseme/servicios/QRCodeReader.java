@@ -33,6 +33,7 @@ public class QRCodeReader extends AppCompatActivity {
     private Usuario usuario;
     private String result;
     private Maquina maquina;
+    private ArrayList<String> tokensNotif;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,7 @@ public class QRCodeReader extends AppCompatActivity {
         maquinasExistentes = new ArrayList<>();
         usuario = new Usuario();
         maquina = new Maquina();
+        tokensNotif = new ArrayList<>();
 
         Bundle extras = getIntent().getExtras();
         if(extras != null) {
@@ -50,6 +52,7 @@ public class QRCodeReader extends AppCompatActivity {
             actividad = intent.getExtras().getString("activity");
             usuario = intent.getExtras().getParcelable("usuario");
             result = "";
+            tokensNotif = (ArrayList<String>) intent.getExtras().getSerializable("tokensNotif");
         }
 
         CodeScannerView scannerView = findViewById(R.id.scanner_view);
@@ -125,6 +128,7 @@ public class QRCodeReader extends AppCompatActivity {
                     i.putExtra("nombresMaquinas",maquinasExistentes);
                     i.putExtra("usuario", usuario);
                     i.putExtra("maquina",maquina);
+                    i.putExtra("tokensNotif", tokensNotif);
                     startActivity(i);
                 }
             }

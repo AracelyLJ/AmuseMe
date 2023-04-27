@@ -17,6 +17,7 @@ public class SplashActivity extends AppCompatActivity {
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         Intent intent;
         if (currentUser!= null) {
+            Utils.generateDeviceToken(currentUser.getUid());
             intent = new Intent(this, HomeEmpleado.class);
         } else {
             intent = new Intent(this, LoginActivity.class);

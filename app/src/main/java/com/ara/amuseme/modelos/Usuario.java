@@ -17,6 +17,7 @@ public class Usuario implements Parcelable {
     private String sucRegistradas;
     private String sucursales;
     private String tel;
+    private String token;
 
     public Usuario(){
         contRegistro="";
@@ -31,11 +32,12 @@ public class Usuario implements Parcelable {
         sucRegistradas="";
         sucursales="";
         tel="";
+        token = "";
     }
 
     public Usuario(String contRegistro, String correo, String id, String maqRegSuc, String nombre,
-                   String pw, String porDepositar, String rol, String status, String sucRegistradas,
-                   String sucursales, String tel) {
+                   String porDepositar, String pw, String rol, String status, String sucRegistradas,
+                   String sucursales, String tel, String token) {
         this.contRegistro = contRegistro;
         this.correo = correo;
         this.id = id;
@@ -48,6 +50,7 @@ public class Usuario implements Parcelable {
         this.sucRegistradas = sucRegistradas;
         this.sucursales = sucursales;
         this.tel = tel;
+        this.token = token;
     }
 
     protected Usuario(Parcel in) {
@@ -63,6 +66,7 @@ public class Usuario implements Parcelable {
         sucRegistradas = in.readString();
         sucursales = in.readString();
         tel = in.readString();
+        token = in.readString();
     }
 
     public static final Creator<Usuario> CREATOR = new Creator<Usuario>() {
@@ -192,6 +196,15 @@ public class Usuario implements Parcelable {
         parcel.writeString(sucRegistradas);
         parcel.writeString(sucursales);
         parcel.writeString(tel);
+        parcel.writeString(token);
+    }
+
+    public String getToken() {
+        return token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     @Override
@@ -208,6 +221,7 @@ public class Usuario implements Parcelable {
                 ", sucRegistradas='" + sucRegistradas + '\'' +
                 ", sucursales='" + sucursales + '\'' +
                 ", tel='" + tel + '\'' +
+                ", token='" + token + '\'' +
                 '}';
     }
 }

@@ -7,9 +7,16 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -28,8 +35,11 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 
@@ -40,6 +50,8 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
     private ArrayList<String> maquinas;
     private FirebaseUser user;
     private Usuario usuario;
+    private String ubicacion;
+    private ArrayList<String> tokensToNotif;
 
     private static final int CODIGO_PERMISOS = 1;
 
@@ -58,8 +70,12 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         maquinas = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
         usuario = new Usuario();
-        getDBdata();
+        ubicacion = "";
+        tokensToNotif = new ArrayList<>();
 
+        getDBdata();
+        getUbicacion();
+        getTokensToNotif();
 
     }
 
@@ -91,10 +107,26 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra("maquinas", maquinas);
                 intent.putExtra("actividad","contadores");
                 intent.putExtra("usuario", usuario);
+                intent.putExtra("ubicacion", ubicacion);
+                intent.putExtra("tokensNotif", tokensToNotif);
                 startActivity(intent);
                 break;
             case R.id.btnRegistrarDeposito:
-
+                intent = new Intent(HomeEmpleado.this, RegistrarDeposito.class);
+                intent.putExtra("usuario", usuario);
+                intent.putExtra("ubicacion", ubicacion);
+                intent.putExtra("tokensNotif", tokensToNotif);
+                startActivity(intent);
+//                Toast.makeText(this, "Enviando?", Toast.LENGTH_SHORT).show();
+//                String token = "fkjbdZe0Qh-EfGBEi8UX4V:APA91bFONy7WJbdEpUEJ8ftUr0017ckjAGSxwdlV4T" +
+//                        "e7d-KWOypsQcclLLEvg4wb8qSJeBtIIdnQOxScvtt5Qe2mpXP9RadecH5QQEMEFWFqqlwTS1" +
+//                        "5W6I-5OnE_w-5KgH1dzjFxIRyt";
+//                FCMSend.pushNotification(
+//                        HomeEmpleado.this,
+//                        "foadfCSMT8667mPytJzcN1:APA91bGdEG1aUugZ8wblpNprPL3u9xeELR7oZaoEDgqpmrzfMiug7QLctGu6aDOOdy1QPK9cbTTrcrRClMBeTZe1BMw7FGSn0fVmKv0SHtngGph4lsX9gMcyg9dckVPwzIMcd2ktnnnr",
+//                        "Hola",
+//                        "Nueva notificación"
+//                );
                 break;
             case R.id.cerrarSesionUser:
                 FirebaseAuth.getInstance().signOut();
@@ -217,8 +249,9 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                     String sucRegistradas = task.getResult().getData().get("sucRegistradas").toString();
                     String sucursales = task.getResult().getData().get("sucursales").toString();
                     String tel = task.getResult().getData().get("tel").toString();
+                    String token = task.getResult().getData().get("token").toString();
                     usuario = new Usuario(contRegistro, correo, id, maqRegSuc, nombre, porDepositar,
-                            pw, rol, status, sucRegistradas, sucursales, tel);
+                            pw, rol, status, sucRegistradas, sucursales, tel, token);
                     setTitle(nombre);
                 }
             }
@@ -234,5 +267,80 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void getUbicacion() {
+        LocationManager locationManager =
+                (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
+                        != PackageManager.PERMISSION_GRANTED) {
+            Log.d("Ubicacion", "No se tienen los permisos para la ubicacion.");
+            return;
+        }
+        final LocationListener listenerUbicacion = new LocationListener() {
+
+
+            @Override
+            public void onLocationChanged(Location location) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD && Geocoder.isPresent()) {
+                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
+                    List<Address> addresses = null;
+                    try {
+                        addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        Log.e("ERROR", "Error obteniendo ubicacion");
+                    }
+                    if (addresses != null && addresses.size() > 0) {
+                        Address address = addresses.get(0);
+                        ubicacion = address.getAddressLine(0);
+                        Log.d("Ubicación: ", ubicacion);
+                    }
+                }
+            }
+
+            @Override
+            public void onLocationChanged(List<Location> locations) {
+            }
+
+            @Override
+            public void onFlushComplete(int requestCode) {
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+            }
+        };
+        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
+                10000,
+                10,
+                listenerUbicacion);
+    }
+
+
+    public void getTokensToNotif() {
+        OnCompleteListener<QuerySnapshot> listenerTokens = new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    for (DocumentSnapshot ds: task.getResult().getDocuments()){
+                        tokensToNotif.add(ds.get("token").toString());
+                    }
+                }
+            }
+        };
+        FirebaseFirestore.getInstance().collection("DeviceTokens").get()
+                .addOnCompleteListener(listenerTokens);
+    }
 
 }

@@ -54,5 +54,12 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth-ktx'
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.google.firebase:firebase-storage'
+    // Cloud messaging
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-analytics'
+    // Volley RequestQueue
+    implementation 'com.android.volley:volley:1.1.1'
+    // Multidex
+    implementation "androidx.multidex:multidex:2.0.1"
 
 }

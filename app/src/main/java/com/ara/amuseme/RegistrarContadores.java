@@ -1,7 +1,6 @@
 package com.ara.amuseme;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
 
 import android.app.AlertDialog;
@@ -13,13 +12,8 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -40,6 +34,7 @@ import com.ara.amuseme.modelos.Maquina;
 import com.ara.amuseme.modelos.RegistroMaquina;
 import com.ara.amuseme.modelos.Sucursal;
 import com.ara.amuseme.modelos.Usuario;
+import com.ara.amuseme.servicios.FCMSend;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -54,20 +49,14 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TimeZone;
 
 public class RegistrarContadores extends AppCompatActivity {
 
@@ -75,7 +64,6 @@ public class RegistrarContadores extends AppCompatActivity {
     private EditText etxtPrizes;
     private ImageView btnCamPrizes;
     private Button btnRegistrarMaquina;
-    private TextView txtDatosAnteriores;
     private TextView txtDatosAnteriores1;
     private TextView txtDatosAnteriores2;
     private Maquina maquina;
@@ -88,14 +76,13 @@ public class RegistrarContadores extends AppCompatActivity {
     private RegistroMaquina registroActual;
     private RegistroMaquina registroAnterior;
     private String idUsuario;
-    private ArrayList<String> nombresMaquinas;
-    private ArrayList<String> maquinasRegistradas;
     private Uri photoUri;
     private String cveSucursal;
     private String cveTipo;
     private Usuario usuario;
     private Sucursal sucursal;
     private String ubicacion;
+    private ArrayList<String> tokensNotif;
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
@@ -109,7 +96,6 @@ public class RegistrarContadores extends AppCompatActivity {
         etxtPrizes = findViewById(R.id.prizes);
         btnCamPrizes = findViewById(R.id.camPrizes);
         btnRegistrarMaquina = findViewById(R.id.registrarMaquina);
-        txtDatosAnteriores = findViewById(R.id.datosAnteriores);
         txtDatosAnteriores1 = findViewById(R.id.datosAnteriores1);
         txtDatosAnteriores2 = findViewById(R.id.datosAnteriores2);
         btnCamPrizes.setOnClickListener(new View.OnClickListener() {
@@ -129,20 +115,20 @@ public class RegistrarContadores extends AppCompatActivity {
         registroActual = new RegistroMaquina();
         registroAnterior = new RegistroMaquina();
         idUsuario = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        maquinasRegistradas = new ArrayList<>();
         mapFotos = new HashMap<>();
         usuario = new Usuario();
         ubicacion = "";
+        tokensNotif = new ArrayList<>();
 
         // Get extras
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             Intent intent = getIntent();
-            nombresMaquinas = (ArrayList<String>) intent.getExtras().getSerializable("nombresMaquinas");
             usuario = getIntent().getExtras().getParcelable("usuario");
             maquina = intent.getExtras().getParcelable("maquina");
             cveSucursal = maquina.getAlias().charAt(0) + "" + maquina.getAlias().charAt(1);
             cveTipo = maquina.getAlias().charAt(2) + "" + maquina.getAlias().charAt(3);
+            tokensNotif = (ArrayList<String>) intent.getExtras().getSerializable("tokensNotif");
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarContadores.this);
             builder.setMessage("Error obteniendo datos. Contacte al administrador.")
@@ -184,7 +170,7 @@ public class RegistrarContadores extends AppCompatActivity {
         }
         getFirebaseData();
         getRegistroAnterior();
-        getUbicacion();
+//        getUbicacion();
     }
 
     @Override
@@ -221,42 +207,6 @@ public class RegistrarContadores extends AppCompatActivity {
                 .whereEqualTo("clave", cveSucursal)
                 .get()
                 .addOnCompleteListener(listenerSucursal);
-    }
-
-    public void getUbicacion() {
-        LocationManager locationManager =
-                (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION)
-                        != PackageManager.PERMISSION_GRANTED) {
-            Log.d("Ubicacion", "No se tienen los permisos para la ubicacion.");
-            return;
-        }
-        final LocationListener listenerUbicacion = new LocationListener() {
-
-            public void onLocationChanged(Location location) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD && Geocoder.isPresent()) {
-                    Geocoder geocoder = new Geocoder(getApplicationContext(), Locale.getDefault());
-                    List<Address> addresses = null;
-                    try {
-                        addresses = geocoder.getFromLocation(location.getLatitude(),location.getLongitude(), 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Log.e("ERROR", "Error obteniendo ubicacion");
-                    }
-                    if (addresses != null && addresses.size() > 0) {
-                        Address address = addresses.get(0);
-                        ubicacion = address.getAddressLine(0);
-                        Log.d("Ubicación: ", ubicacion);
-                    }
-                }
-            }
-        };
-        locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER,
-                10000,
-                10,
-                listenerUbicacion);
     }
 
     public boolean validarDatos(String accion) {
@@ -460,21 +410,13 @@ public class RegistrarContadores extends AppCompatActivity {
     }
 
     public void registrarContadores() {
-//        if (!validarDatos("final")) return;
+        if (!validarDatos("final")) return;
 
         // Fecha y hora
-        Calendar calendar = Calendar.getInstance();
-        Date date = new Date();
-        SimpleDateFormat formatFecha = new SimpleDateFormat("yyyy/MM/dd", new Locale("es_MX"));
-        DateFormat formatHora = new SimpleDateFormat("HH:mm", new Locale("es_MX"));
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            ZoneId zoneIdMx = ZoneId.of("America/Mexico_City");
-            formatFecha.setTimeZone(TimeZone.getTimeZone(zoneIdMx));
-            formatHora.setTimeZone(TimeZone.getTimeZone(zoneIdMx));
-        }
-        int numSemana = calendar.get(Calendar.WEEK_OF_YEAR);
-        String fecha = formatFecha.format(date);
-        String hora = formatHora.format(date);
+        Map<String, String> mapTime = Utils.getTime();
+        String fecha = mapTime.get("fecha");
+        String hora = mapTime.get("hora");
+        String numSemana = mapTime.get("numSemana");
 
         // Registro
         HashMap<String, String> nvoRegistro = new HashMap<>();
@@ -483,7 +425,7 @@ public class RegistrarContadores extends AppCompatActivity {
         nvoRegistro.put("fecha", fecha);
         nvoRegistro.put("hora", hora);
         nvoRegistro.put("ubicacion", ubicacion);
-        nvoRegistro.put("semanaFiscal", String.valueOf(numSemana));
+        nvoRegistro.put("semanaFiscal", numSemana);
         nvoRegistro.put("usuario", idUsuario);
         nvoRegistro.put("contRegistro", String.valueOf(contRegActual));
         nvoRegistro.put("sucursal", cveSucursal);
@@ -548,8 +490,8 @@ public class RegistrarContadores extends AppCompatActivity {
                     "asignadas al usuario: " + usuario.getNombre();
             usuario.setSucRegistradas("");
             usuario.setContRegistro(String.valueOf(contRegActual+1));
-            enviarCalculos();
             regresarSinDialog = false;
+            enviarCalculos();
         }
         usuario.setMaqRegSuc(maquinasRegistradas.toString()
                 .replace("[", "").replace("]", ""));
@@ -560,10 +502,17 @@ public class RegistrarContadores extends AppCompatActivity {
                 collection(contRegActual+"").document(alias).set(registroActual);
 
         registrarCalculo();
+
         if (regresarSinDialog) {
             Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
             startActivity(intent);
         } else {
+            FCMSend.pushNotification(
+                    RegistrarContadores.this,
+                    tokensNotif,
+                    usuario.getToken(),
+                    "AmuseMe Registros",
+                    mensajeFinal);
             mostrarMensajeFinal(mensajeFinal);
         }
 
@@ -573,8 +522,12 @@ public class RegistrarContadores extends AppCompatActivity {
 
         HashMap<String, String> restasContador = new HashMap<>();
         for (String contador: textContadores){
-            int valRegActual = Integer.parseInt(registroActual.getContadores().get(contador));
-            int valRegAnterior = Integer.parseInt(registroAnterior.getContadores().get(contador));
+            int valRegActual = 0;
+            int valRegAnterior = 0;
+            if (registroActual.getContadores().get(contador)!=null)
+                valRegActual = Integer.parseInt(registroActual.getContadores().get(contador));
+            if (registroAnterior.getContadores().get(contador)!=null)
+                valRegAnterior = Integer.parseInt(registroAnterior.getContadores().get(contador));
             restasContador.put(contador,String.valueOf((valRegActual-valRegAnterior)));
         }
         FirebaseDatabase.getInstance().getReference("calculos/" + usuario.getId())
@@ -686,8 +639,6 @@ public class RegistrarContadores extends AppCompatActivity {
         } catch (Exception e) {
             Log.e("ErrorUploadImages", Objects.requireNonNull(e.getMessage()));
         }
-
-
     }
 
     public void mostrarMensajeFinal(String mensaje) {
@@ -722,10 +673,9 @@ public class RegistrarContadores extends AppCompatActivity {
         dialog.show();
     }
 
-
     public void enviarCalculos() {
 
-        FirebaseDatabase.getInstance().getReference("calculos/"+usuario.getId()+"/19")
+        FirebaseDatabase.getInstance().getReference("calculos/"+usuario.getId()+"/"+contRegActual)
                 .get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(Task<DataSnapshot> task) {
@@ -760,4 +710,5 @@ public class RegistrarContadores extends AppCompatActivity {
             }
         });
     }
+
 }

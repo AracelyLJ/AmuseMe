@@ -59,6 +59,7 @@ public class LoginActivity extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(Task<AuthResult> task) {
+                        Utils.generateDeviceToken(auth.getCurrentUser().getUid());
                         if (task.isSuccessful()) {
                             Intent intent = new Intent(LoginActivity.this, HomeEmpleado.class);
                             startActivity(intent);
