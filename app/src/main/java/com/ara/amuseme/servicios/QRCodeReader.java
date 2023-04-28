@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import com.ara.amuseme.HomeEmpleado;
 import com.ara.amuseme.R;
 import com.ara.amuseme.RegistrarContadores;
+import com.ara.amuseme.RegistrarVisita;
 import com.ara.amuseme.modelos.Maquina;
 import com.ara.amuseme.modelos.Usuario;
 import com.budiyev.android.codescanner.CodeScanner;
@@ -49,7 +50,7 @@ public class QRCodeReader extends AppCompatActivity {
         if(extras != null) {
             Intent intent = getIntent();
             maquinasExistentes = (ArrayList<String>) intent.getExtras().getSerializable("maquinas");
-            actividad = intent.getExtras().getString("activity");
+            actividad = intent.getExtras().getString("actividad");
             usuario = intent.getExtras().getParcelable("usuario");
             result = "";
             tokensNotif = (ArrayList<String>) intent.getExtras().getSerializable("tokensNotif");
@@ -124,7 +125,13 @@ public class QRCodeReader extends AppCompatActivity {
                     String observaciones = task.getResult().getDocuments().get(0).get("observaciones").toString();
                     String renta = task.getResult().getDocuments().get(0).get("renta").toString();
                     maquina = new Maquina(alias, imagen, nombre, observaciones, renta);
-                    Intent i = new Intent(QRCodeReader.this, RegistrarContadores.class);
+
+                    Intent i;
+                    if (actividad.equals("contadores")) {
+                        i = new Intent(QRCodeReader.this, RegistrarContadores.class);
+                    } else {
+                        i = new Intent(QRCodeReader.this, RegistrarVisita.class);
+                    }
                     i.putExtra("nombresMaquinas",maquinasExistentes);
                     i.putExtra("usuario", usuario);
                     i.putExtra("maquina",maquina);

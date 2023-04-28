@@ -47,6 +47,7 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
 
     private LinearLayout btnRegistrarContadores;
     private LinearLayout btnRegistrarDeposito;
+    private LinearLayout btnRegistrarVisita;
     private ArrayList<String> maquinas;
     private FirebaseUser user;
     private Usuario usuario;
@@ -64,8 +65,10 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
 
         btnRegistrarContadores = findViewById(R.id.btnRegistrarContadores);
         btnRegistrarDeposito = findViewById(R.id.btnRegistrarDeposito);
+        btnRegistrarVisita = findViewById(R.id.btnRegistrarVisita);
         btnRegistrarContadores.setOnClickListener(this);
         btnRegistrarDeposito.setOnClickListener(this);
+        btnRegistrarVisita.setOnClickListener(this);
 
         maquinas = new ArrayList<>();
         user = FirebaseAuth.getInstance().getCurrentUser();
@@ -117,16 +120,15 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra("ubicacion", ubicacion);
                 intent.putExtra("tokensNotif", tokensToNotif);
                 startActivity(intent);
-//                Toast.makeText(this, "Enviando?", Toast.LENGTH_SHORT).show();
-//                String token = "fkjbdZe0Qh-EfGBEi8UX4V:APA91bFONy7WJbdEpUEJ8ftUr0017ckjAGSxwdlV4T" +
-//                        "e7d-KWOypsQcclLLEvg4wb8qSJeBtIIdnQOxScvtt5Qe2mpXP9RadecH5QQEMEFWFqqlwTS1" +
-//                        "5W6I-5OnE_w-5KgH1dzjFxIRyt";
-//                FCMSend.pushNotification(
-//                        HomeEmpleado.this,
-//                        "foadfCSMT8667mPytJzcN1:APA91bGdEG1aUugZ8wblpNprPL3u9xeELR7oZaoEDgqpmrzfMiug7QLctGu6aDOOdy1QPK9cbTTrcrRClMBeTZe1BMw7FGSn0fVmKv0SHtngGph4lsX9gMcyg9dckVPwzIMcd2ktnnnr",
-//                        "Hola",
-//                        "Nueva notificación"
-//                );
+                break;
+            case R.id.btnRegistrarVisita:
+                intent = new Intent(HomeEmpleado.this, QRCodeReader.class);
+                intent.putExtra("maquinas", maquinas);
+                intent.putExtra("actividad","visita");
+                intent.putExtra("usuario", usuario);
+                intent.putExtra("ubicacion", ubicacion);
+                intent.putExtra("tokensNotif", tokensToNotif);
+                startActivity(intent);
                 break;
             case R.id.cerrarSesionUser:
                 FirebaseAuth.getInstance().signOut();

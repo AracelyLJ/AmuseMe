@@ -164,14 +164,17 @@ public class RegistrarDeposito extends AppCompatActivity {
                 .document().set(deposito);
         uploadImages();
 
-        String mensaje = "Depósito registrado satisfactoriamente.";
+
+
         FCMSend.pushNotification(
                 RegistrarDeposito.this,
                 tokensNotif,
                 usuario.getToken(),
                 "AmuseMe Deposito",
-                mensaje
-                );
+                "El usuario: "+usuario.getNombre() + " depositó " +
+                        deposito.getMonto()+ " pesos."
+        );
+        String mensaje = "Depósito registrado satisfactoriamente.";
         mostrarMensajeFinal(mensaje);
     }
 
