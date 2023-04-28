@@ -327,7 +327,6 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 listenerUbicacion);
     }
 
-
     public void getTokensToNotif() {
         OnCompleteListener<QuerySnapshot> listenerTokens = new OnCompleteListener<QuerySnapshot>() {
             @Override

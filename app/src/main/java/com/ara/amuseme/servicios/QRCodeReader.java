@@ -35,6 +35,7 @@ public class QRCodeReader extends AppCompatActivity {
     private String result;
     private Maquina maquina;
     private ArrayList<String> tokensNotif;
+    private String ubicacion;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class QRCodeReader extends AppCompatActivity {
             maquinasExistentes = (ArrayList<String>) intent.getExtras().getSerializable("maquinas");
             actividad = intent.getExtras().getString("actividad");
             usuario = intent.getExtras().getParcelable("usuario");
+            ubicacion = intent.getExtras().getString("ubicacion");
             result = "";
             tokensNotif = (ArrayList<String>) intent.getExtras().getSerializable("tokensNotif");
         }
@@ -136,6 +138,7 @@ public class QRCodeReader extends AppCompatActivity {
                     i.putExtra("usuario", usuario);
                     i.putExtra("maquina",maquina);
                     i.putExtra("tokensNotif", tokensNotif);
+                    i.putExtra("ubicacion", ubicacion);
                     startActivity(i);
                 }
             }
@@ -144,9 +147,6 @@ public class QRCodeReader extends AppCompatActivity {
                 .whereEqualTo("nombre", result)
                 .get()
                 .addOnCompleteListener(listenerSucursal);
-
-
-
     }
 
 }
