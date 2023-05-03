@@ -21,7 +21,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AmuseMe">
-        <activity android:name=".RegistrarVisita"></activity>
+        <activity
+            android:name=".administrador.Usuarios"
+            android:exported="false" />
+        <activity android:name=".HomeAdmin" />
+        <activity android:name=".RegistrarVisita" />
         <activity android:name=".RegistrarDeposito" />
         <activity android:name=".servicios.QRCodeReader" />
         <activity android:name=".RegistrarContadores" />

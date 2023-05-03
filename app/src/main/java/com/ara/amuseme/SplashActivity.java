@@ -18,7 +18,7 @@ public class SplashActivity extends AppCompatActivity {
         Intent intent;
         if (currentUser!= null) {
             Utils.generateDeviceToken(currentUser.getUid());
-            intent = new Intent(this, HomeEmpleado.class);
+            intent = new Intent(this, HomeAdmin.class);
         } else {
             intent = new Intent(this, LoginActivity.class);
         }
