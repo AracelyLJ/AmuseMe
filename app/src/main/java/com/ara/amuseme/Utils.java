@@ -56,6 +56,21 @@ public class Utils {
                                         Log.w("ERROR", "Error al agregar Device Token");
                                     }
                                 });
+                        Map<String, String> hmToken = new HashMap<>();
+                        hmToken.put("token",token);
+                        firestore.collection("DeviceTokens").document(token).set(hmToken)
+                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        Log.d("OK", "Device Token agregado.");
+                                    }
+                                })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(Exception e) {
+                                        Log.w("ERROR", "Error al agregar Device Token");
+                                    }
+                                });
 
                     }
                 });

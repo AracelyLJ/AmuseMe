@@ -41,10 +41,10 @@ public class FCMSend {
                 notification.put("title",title);
                 notification.put("body", message);
                 json.put("notification",notification);
-                JSONObject data = new JSONObject();
-                data.put("nick","nick");
-                data.put("room","room");
-                json.put("data",data);
+//                JSONObject data = new JSONObject();
+//                data.put("nick","nick");
+//                data.put("room","room");
+//                json.put("data",data);
 
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST,
                         BASE_URL, json,
