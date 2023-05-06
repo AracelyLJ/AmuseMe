@@ -163,17 +163,4 @@
 
     </LinearLayout>
 
-    <android.widget.Button
-        android:id="@+id/cerrarSesionUser"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        android:background="@drawable/boton_redondo_azul"
-        android:onClick="onClick"
-        android:text="Cerrar Sesion"
-        android:textColor="@color/colorWhite"
-        android:textSize="14sp" />
-
-
-
 </LinearLayout>

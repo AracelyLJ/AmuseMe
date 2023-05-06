@@ -19,6 +19,9 @@ import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.Toast;
@@ -76,6 +79,22 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         ubicacion = "";
         tokensToNotif = new ArrayList<>();
 
+        Bundle extras = getIntent().getExtras();
+        if (extras != null) {
+            usuario = getIntent().getExtras().getParcelable("usuario");
+        } else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(HomeEmpleado.this);
+            builder.setMessage("Error obteniendo datos. Contacte al administrador.")
+                    .setPositiveButton("REGRESAR", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            startActivity(new Intent(HomeEmpleado.this, LoginActivity.class));
+                            finish();
+                        }
+                    })
+                    .setCancelable(false).show();
+        }
+
         getDBdata();
         getUbicacion();
         getTokensToNotif();
@@ -130,13 +149,27 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                 intent.putExtra("tokensNotif", tokensToNotif);
                 startActivity(intent);
                 break;
-            case R.id.cerrarSesionUser:
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(HomeEmpleado.this, LoginActivity.class));
-                break;
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle presses on the action bar items
+        switch (item.getItemId()) {
+            case R.id.action_logout:
+                FirebaseAuth.getInstance().signOut();
+                startActivity(new Intent(HomeEmpleado.this, LoginActivity.class));
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
     public void scripParaRealizarCalculos() {
         OnCompleteListener<QuerySnapshot> listenerUsuario = new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -233,7 +266,7 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
             }
         };
         dbref.getReference("maquinas1").get().addOnCompleteListener(listener);
-        OnCompleteListener<DocumentSnapshot> listenerUsuario = new OnCompleteListener<DocumentSnapshot>() {
+        /*OnCompleteListener<DocumentSnapshot> listenerUsuario = new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(Task<DocumentSnapshot> task) {
                 if (!task.isSuccessful()) {
@@ -264,7 +297,7 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                     .addOnCompleteListener(listenerUsuario);
         }catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        }*/
 
 
     }
