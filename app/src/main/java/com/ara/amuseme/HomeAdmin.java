@@ -60,6 +60,7 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             usuario = getIntent().getExtras().getParcelable("usuario");
+            setTitle(usuario.getNombre());
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(HomeAdmin.this);
             builder.setMessage("Error obteniendo datos. Contacte al administrador.")
@@ -99,11 +100,22 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
     }
     @Override
     public void onClick(View view) {
-        Intent i;
+        Intent i = new Intent();
         switch (view.getId()){
             case R.id.btnUsuarios:
                 i = new Intent(HomeAdmin.this, Usuarios.class);
+                i.putExtra("usuario",usuario);
                 startActivity(i);
+                break;
+            case R.id.btnSucursales:
+                break;
+            case R.id.btnDepositos:
+                break;
+            case R.id.btnRegistros:
+                break;
+            case R.id.btnMaquinas:
+                break;
+            case R.id.btnTipos:
                 break;
         }
 
@@ -113,7 +125,7 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.menu_logout, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -121,7 +133,7 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
-            case R.id.action_logout:
+            case R.id.btn_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(HomeAdmin.this, LoginActivity.class));
                 return true;

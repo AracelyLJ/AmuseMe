@@ -3,6 +3,8 @@ package com.ara.amuseme.modelos;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
+
 public class Usuario implements Parcelable {
 
     private String contRegistro;
@@ -224,4 +226,5 @@ public class Usuario implements Parcelable {
                 ", token='" + token + '\'' +
                 '}';
     }
+
 }

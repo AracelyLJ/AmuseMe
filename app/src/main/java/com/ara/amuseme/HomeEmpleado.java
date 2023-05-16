@@ -156,13 +156,13 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu, menu);
+        inflater.inflate(R.menu.menu_logout, menu);
         return super.onCreateOptionsMenu(menu);
     }
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle presses on the action bar items
         switch (item.getItemId()) {
-            case R.id.action_logout:
+            case R.id.btn_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(HomeEmpleado.this, LoginActivity.class));
                 return true;

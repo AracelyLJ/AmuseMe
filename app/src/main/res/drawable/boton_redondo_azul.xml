@@ -11,7 +11,7 @@
     <!-- Color y ancho del borde del elemento -->
     <stroke
         android:width="3dp"
-        android:color="#1c1b20" >
+        android:color="@color/colorPrimaryDark" >
     </stroke>
 
     <!-- Si queremos añadir algún padding -->
@@ -23,8 +23,8 @@
     </padding>
 
     <!-- Aquí indicamos el radio a aplicar a las esquinas -->
-    <corners
+    <!--<corners
         android:radius="15dp"   >
-    </corners>
+    </corners>-->
 
 </shape>
