@@ -1,7 +1,9 @@
 package com.ara.amuseme.herramientas;
 
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.ara.amuseme.R;
+import com.ara.amuseme.administrador.InfoUsuario;
 import com.ara.amuseme.modelos.Usuario;
 
 import java.lang.reflect.Array;
@@ -32,7 +35,6 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         this.filtro = filtro;
         usuariosOriginal = new ArrayList<>();
         usuariosOriginal.addAll(usuarios);
-        Toast.makeText(context, this.filtro, Toast.LENGTH_SHORT).show();
     }
 
     @NonNull
@@ -43,7 +45,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ItemViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.getTxtUsuario().setText(usuarios.get(position).getNombre());
         switch (this.filtro.toLowerCase()){
             case "nombre":
@@ -69,8 +71,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-//                Toast.makeText(context, nombres.get(position1), Toast.LENGTH_SHORT).show();
-//                Toast.makeText(context, filtro.get(position1), Toast.LENGTH_SHORT).show();
+                goUsuario(usuarios.get(position));
             }
         });
     }
@@ -126,5 +127,12 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
             }
         }
         notifyDataSetChanged();
+    }
+
+    public void goUsuario(Usuario usuario) {
+        Intent i = new Intent(context, InfoUsuario.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("usuario", usuario);
+        context.startActivity(i);
     }
 }

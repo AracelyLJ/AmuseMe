@@ -113,6 +113,7 @@ public class LoginActivity extends AppCompatActivity {
                                     .setNeutralButton("OK", new DialogInterface.OnClickListener() {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
+                                            progressDialog.cancel();
                                             return;
                                         }
                                     })

@@ -15,6 +15,7 @@ import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
@@ -23,6 +24,7 @@ public class Utils {
 
     public static final String ADMINISTRADORES = "ara.lj.uaa@gmail.com,diazserranoricardo1@gmail.com" +
             ",gencovending@gmail.com";
+    public static final String[] ROLS = {"EMPLEADO", "ADMIN"};
 
 
     public static void generateDeviceToken(String userid) {

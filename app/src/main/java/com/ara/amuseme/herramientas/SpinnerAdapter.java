@@ -15,7 +15,6 @@ import java.util.ArrayList;
 
 public class SpinnerAdapter extends ArrayAdapter<String> {
     ArrayList<String> valores;
-    View view;
 
     public SpinnerAdapter(Context context, int textViewResourceId, ArrayList<String> valores) {
         super(context, textViewResourceId, valores);
