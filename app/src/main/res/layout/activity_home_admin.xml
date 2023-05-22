@@ -11,11 +11,11 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:layout_weight="0.25"
-        android:layout_marginEnd="20dp"
+        android:layout_width="261dp"
+        android:layout_height="98dp"
         android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_weight="0.25"
         app:srcCompat="@drawable/logo3_prin" />
 
     <ScrollView

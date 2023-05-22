@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.ara.amuseme.administrador.TiposMaquinas;
 import com.ara.amuseme.administrador.Usuarios;
 import com.ara.amuseme.modelos.Usuario;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -116,6 +117,9 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
             case R.id.btnMaquinas:
                 break;
             case R.id.btnTipos:
+                i = new Intent(HomeAdmin.this, TiposMaquinas.class);
+                i.putExtra("usuario",usuario);
+                startActivity(i);
                 break;
         }
 

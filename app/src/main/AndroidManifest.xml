@@ -22,6 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AmuseMe">
         <activity
+            android:name=".administrador.InfoTipoMaquina"
+            android:exported="false" />
+        <activity
+            android:name=".administrador.TiposMaquinas"
+            android:exported="false" />
+        <activity
             android:name=".administrador.InfoUsuario"
             android:exported="false" />
         <activity
