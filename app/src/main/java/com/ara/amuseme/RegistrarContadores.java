@@ -195,10 +195,11 @@ public class RegistrarContadores extends AppCompatActivity {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
                     String clave = task.getResult().getDocuments().get(0).get("clave").toString();
+                    String id = task.getResult().getDocuments().get(0).get("id").toString();
                     String maquinas = task.getResult().getDocuments().get(0).get("maquinas").toString();
                     String nombre = task.getResult().getDocuments().get(0).get("nombre").toString();
                     String ubicacion = task.getResult().getDocuments().get(0).get("ubicacion").toString();
-                    sucursal = new Sucursal(clave, maquinas, nombre, ubicacion);
+                    sucursal = new Sucursal(clave, id, maquinas, nombre, ubicacion);
                     progressDialog.cancel();
                 }
             }

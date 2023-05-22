@@ -194,10 +194,11 @@ public class Usuarios extends AppCompatActivity implements SearchView.OnQueryTex
                 } else {
                     for (DocumentSnapshot ds: task.getResult().getDocuments()){
                         String clave = ds.get("clave").toString();
+                        String id = ds.get("id").toString();
                         String maquinas = ds.get("maquinas").toString();
                         String nombre = ds.get("nombre").toString();
                         String ubicacion = ds.get("ubicacion").toString();
-                        Sucursal sucursal = new Sucursal(clave, maquinas, nombre, ubicacion);
+                        Sucursal sucursal = new Sucursal(clave, id, maquinas, nombre, ubicacion);
                         sucursales.add(sucursal);
                     }
                     crearLista();

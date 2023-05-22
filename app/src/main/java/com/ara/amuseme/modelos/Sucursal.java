@@ -6,12 +6,14 @@ import android.os.Parcelable;
 public class Sucursal implements Parcelable {
 
     private String clave;
+    private String id;
     private String maquinas;
     private String nombre;
     private String ubicacion;
 
-    public Sucursal(String clave, String maquinas, String nombre, String ubicacion) {
+    public Sucursal(String clave, String id, String maquinas, String nombre, String ubicacion) {
         this.clave = clave;
+        this.id = id;
         this.maquinas = maquinas;
         this.nombre = nombre;
         this.ubicacion = ubicacion;
@@ -19,6 +21,7 @@ public class Sucursal implements Parcelable {
 
     protected Sucursal(Parcel in) {
         clave = in.readString();
+        id = in.readString();
         maquinas = in.readString();
         nombre = in.readString();
         ubicacion = in.readString();
@@ -42,6 +45,15 @@ public class Sucursal implements Parcelable {
     public void setClave(String clave) {
         this.clave = clave;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public String getMaquinas() {
         return maquinas;
     }
@@ -69,6 +81,7 @@ public class Sucursal implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(clave);
+        parcel.writeString(id);
         parcel.writeString(maquinas);
         parcel.writeString(nombre);
         parcel.writeString(ubicacion);
@@ -78,6 +91,7 @@ public class Sucursal implements Parcelable {
     public String toString() {
         return "Sucursal{" +
                 "clave='" + clave + '\'' +
+                ", id='" + id + '\'' +
                 ", maquinas='" + maquinas + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", ubicacion='" + ubicacion + '\'' +

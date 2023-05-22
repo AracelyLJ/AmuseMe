@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.ara.amuseme.administrador.Sucursales;
 import com.ara.amuseme.administrador.TiposMaquinas;
 import com.ara.amuseme.administrador.Usuarios;
 import com.ara.amuseme.modelos.Usuario;
@@ -109,6 +110,9 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
                 startActivity(i);
                 break;
             case R.id.btnSucursales:
+                i = new Intent(HomeAdmin.this, Sucursales.class);
+                i.putExtra("usuario",usuario);
+                startActivity(i);
                 break;
             case R.id.btnDepositos:
                 break;

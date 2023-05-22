@@ -195,6 +195,7 @@ public class InfoUsuario extends AppCompatActivity implements View.OnClickListen
                     for (DocumentSnapshot ds : task.getResult().getDocuments()) {
                         Sucursal suc = new Sucursal(
                                 ds.get("clave").toString(),
+                                ds.get("id").toString(),
                                 ds.get("maquinas").toString(),
                                 ds.get("nombre").toString(),
                                 ds.get("ubicacion").toString()
