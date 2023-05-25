@@ -68,7 +68,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
-public class Usuarios extends AppCompatActivity implements SearchView.OnQueryTextListener{
+public class Usuarios extends AppCompatActivity implements androidx.appcompat.widget.SearchView.OnQueryTextListener{
 
     private Usuario usuario_actual;
     private ArrayList<Usuario> usuarios;
@@ -78,7 +78,7 @@ public class Usuarios extends AppCompatActivity implements SearchView.OnQueryTex
 //    private EditText etxt_busqueda;
     private Spinner spin_filter;
     private String filtrarPor;
-    private SearchView searchUsuario;
+    private androidx.appcompat.widget.SearchView searchUsuario;
     private ItemsAdapter usuariosAdapter;
     private Usuario nuevoUsuario;
     @Override

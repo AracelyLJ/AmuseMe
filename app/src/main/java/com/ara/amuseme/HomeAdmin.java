@@ -13,6 +13,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.ara.amuseme.administrador.Depositos;
 import com.ara.amuseme.administrador.Sucursales;
 import com.ara.amuseme.administrador.TiposMaquinas;
 import com.ara.amuseme.administrador.Usuarios;
@@ -102,19 +103,16 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
     }
     @Override
     public void onClick(View view) {
-        Intent i = new Intent();
+        Intent i = new Intent(HomeAdmin.this, HomeAdmin.class);
         switch (view.getId()){
             case R.id.btnUsuarios:
                 i = new Intent(HomeAdmin.this, Usuarios.class);
-                i.putExtra("usuario",usuario);
-                startActivity(i);
                 break;
             case R.id.btnSucursales:
                 i = new Intent(HomeAdmin.this, Sucursales.class);
-                i.putExtra("usuario",usuario);
-                startActivity(i);
                 break;
             case R.id.btnDepositos:
+                i = new Intent(HomeAdmin.this, Depositos.class);
                 break;
             case R.id.btnRegistros:
                 break;
@@ -122,10 +120,11 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
                 break;
             case R.id.btnTipos:
                 i = new Intent(HomeAdmin.this, TiposMaquinas.class);
-                i.putExtra("usuario",usuario);
-                startActivity(i);
                 break;
         }
+
+        i.putExtra("usuario",usuario);
+        startActivity(i);
 
     }
 

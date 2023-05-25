@@ -22,6 +22,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class InfoSucursales extends AppCompatActivity implements View.OnClickListener {
 
     private Sucursal sucursal;
+    private TextView txtSucursal;
     private EditText etxtNombre, etxtClave;
     private Button btnDone, btnRegresar, btnEditar, btnBorrar;
     private Usuario usuario_actual;
@@ -33,6 +34,7 @@ public class InfoSucursales extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_info_sucursales);
 
+        txtSucursal = findViewById(R.id.txtSucursal);
         etxtNombre = findViewById(R.id.etxtNombre);
         etxtClave = findViewById(R.id.etxtClave);
         llMaquinas = findViewById(R.id.llMaquinas);
@@ -65,6 +67,7 @@ public class InfoSucursales extends AppCompatActivity implements View.OnClickLis
     }
 
     public void ponerDatos() {
+        txtSucursal.setText(sucursal.getNombre());
         etxtNombre.setText(sucursal.getNombre());
         etxtClave.setText(sucursal.getClave());
 

@@ -1,5 +1,6 @@
 package com.ara.amuseme;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import com.ara.amuseme.modelos.Deposito;
 import com.ara.amuseme.modelos.Usuario;
 import com.ara.amuseme.servicios.FCMSend;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -38,8 +40,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Random;
 
 public class RegistrarDeposito extends AppCompatActivity {
 
@@ -52,7 +56,7 @@ public class RegistrarDeposito extends AppCompatActivity {
     private Uri photoUri;
     private Map<String, String> time;
     private ArrayList<String> tokensNotif;
-
+    private String id_deposito;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     @Override
@@ -75,6 +79,7 @@ public class RegistrarDeposito extends AppCompatActivity {
             usuario = getIntent().getExtras().getParcelable("usuario");
             ubicacion = getIntent().getExtras().getString("ubicacion");
             tokensNotif = (ArrayList<String>) extras.getSerializable("tokensNotif");
+            setTitle(usuario.getNombre());
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(RegistrarDeposito.this);
             builder.setMessage("Error obteniendo datos. Contacte al administrador.")
@@ -151,20 +156,20 @@ public class RegistrarDeposito extends AppCompatActivity {
         if (!validarDatos()){
             return;
         }
+        id_deposito = generateNewId();
         Deposito deposito = new Deposito(
                 time.get("hora"),
                 time.get("fecha"),
-                "",
+                "", // foto
+                id_deposito,
                 etxt_pago.getText().toString(),
                 time.get("numSemana"),
                 ubicacion,
                 usuario.getId()
         );
         FirebaseFirestore.getInstance().collection("registros_depositos")
-                .document().set(deposito);
+                .document(id_deposito).set(deposito);
         uploadImages();
-
-
 
         FCMSend.pushNotification(
                 RegistrarDeposito.this,
@@ -230,17 +235,29 @@ public class RegistrarDeposito extends AppCompatActivity {
             storageReference = storage.getReference("fotos_depositos/" +
                     usuario.getId());
             final StorageReference ref = storageReference.child(usuario.getContRegistro()+"-"+fecha+"_"+hora);
-            ref.putFile(photoUri)
-                    .addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                        @Override
-                        public void onComplete(Task<UploadTask.TaskSnapshot> task) {
-                            if (task.isSuccessful()) {
-                                Log.d("Upload", "Imagen deposito subida al servidor.");
-                            } else {
-                                Log.e("Error Upload", "No se pudo subir imagen al servidor.");
-                            }
-                        }
-                    });
+            UploadTask uploadTask = ref.putFile(photoUri);
+            uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw Objects.requireNonNull(task.getException());
+                    }
+                    return ref.getDownloadUrl();
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if(task.isSuccessful()){
+                        Uri uri = task.getResult();  //AQUI YA TENGO LA RUTA DE LA FOTO LISTA PARA INSERTRLA EN DATABASE
+                        assert uri != null;
+                        Map<String, Object> img = new HashMap<>();
+                        img.put("foto",uri);
+                        FirebaseFirestore.getInstance().collection("registros_depositos")
+                                .document(id_deposito).update(img);
+                    }
+                }
+            });
+
         } catch (Exception e) {
             Log.e("ErrorUploadImages", Objects.requireNonNull(e.getMessage()));
         }
@@ -260,8 +277,6 @@ public class RegistrarDeposito extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                Intent intent = new Intent(RegistrarDeposito.this, HomeEmpleado.class);
-                startActivity(intent);
             }
         });
         sucDoneButton.setOnClickListener(new View.OnClickListener() {
@@ -269,6 +284,7 @@ public class RegistrarDeposito extends AppCompatActivity {
             public void onClick(View view) {
                 dialog.dismiss();
                 Intent intent = new Intent(RegistrarDeposito.this, HomeEmpleado.class);
+                intent.putExtra("usuario", usuario);
                 startActivity(intent);
             }
         });
@@ -277,4 +293,20 @@ public class RegistrarDeposito extends AppCompatActivity {
         dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         dialog.show();
     }
+
+    public String generateNewId() {
+        Random rand = new Random();
+
+        String newId = "12345678901234567890";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            newId = rand.ints(48, 123)
+                    .filter(num -> (num<58 || num>64) && (num<91 || num>96))
+                    .limit(20)
+                    .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
+                            StringBuffer::append)
+                    .toString();
+        }
+        return newId;
+    }
+
 }
