@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.ara.amuseme.R;
 import com.ara.amuseme.administrador.InfoUsuario;
+import com.ara.amuseme.administrador.RegistrosMaquinasID;
 import com.ara.amuseme.modelos.Usuario;
 
 import java.lang.reflect.Array;
@@ -28,11 +29,13 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     ArrayList<Usuario> usuarios;
     ArrayList<Usuario> usuariosOriginal;
     String filtro;
+    String goTo;
 
-    public ItemsAdapter(Context context, ArrayList<Usuario> usuarios, String filtro) {
+    public ItemsAdapter(Context context, ArrayList<Usuario> usuarios, String filtro, String goTo) {
         this.context = context;
         this.usuarios = usuarios;
         this.filtro = filtro;
+        this.goTo = goTo;
         usuariosOriginal = new ArrayList<>();
         usuariosOriginal.addAll(usuarios);
     }
@@ -71,7 +74,11 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                goUsuario(usuarios.get(position));
+                if (goTo.equals("usuario")){
+                    goUsuario(usuarios.get(position));
+                } else {
+                    goRegistro(usuarios.get(position));
+                }
             }
         });
     }
@@ -135,4 +142,12 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
         i.putExtra("usuario", usuario);
         context.startActivity(i);
     }
+
+    public void goRegistro(Usuario usuario) {
+        Intent i = new Intent(context, RegistrosMaquinasID.class);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.putExtra("usuario", usuario);
+        context.startActivity(i);
+    }
+
 }

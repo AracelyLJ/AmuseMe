@@ -82,6 +82,7 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
             usuario = getIntent().getExtras().getParcelable("usuario");
+            setTitle(usuario.getNombre());
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(HomeEmpleado.this);
             builder.setMessage("Error obteniendo datos. Contacte al administrador.")

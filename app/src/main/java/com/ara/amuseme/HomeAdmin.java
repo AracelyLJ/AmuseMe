@@ -14,6 +14,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.ara.amuseme.administrador.Depositos;
+import com.ara.amuseme.administrador.Maquinas;
+import com.ara.amuseme.administrador.RegistrosMaquinas;
 import com.ara.amuseme.administrador.Sucursales;
 import com.ara.amuseme.administrador.TiposMaquinas;
 import com.ara.amuseme.administrador.Usuarios;
@@ -31,7 +33,6 @@ import java.util.ArrayList;
 public class HomeAdmin extends AppCompatActivity implements View.OnClickListener {
 
     private ArrayList<String> tokensToNotif;
-    private FirebaseUser user;
     private Usuario usuario;
     private CardView btnUsuarios, btnSucursales, btnDepositos, btnRegistros, btnMaquinas, btnTipos;
 
@@ -49,7 +50,6 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
         btnTipos = findViewById(R.id.btnTipos);
 
         // Inicializaciones
-        user = FirebaseAuth.getInstance().getCurrentUser();
         tokensToNotif = new ArrayList<>();
         usuario = new Usuario();
 
@@ -115,8 +115,10 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
                 i = new Intent(HomeAdmin.this, Depositos.class);
                 break;
             case R.id.btnRegistros:
+                i = new Intent(HomeAdmin.this, RegistrosMaquinas.class);
                 break;
             case R.id.btnMaquinas:
+//                i = new Intent(HomeAdmin.this, Maquinas.class);
                 break;
             case R.id.btnTipos:
                 i = new Intent(HomeAdmin.this, TiposMaquinas.class);

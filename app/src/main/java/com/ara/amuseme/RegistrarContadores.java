@@ -215,6 +215,8 @@ public class RegistrarContadores extends AppCompatActivity {
         String mensaje = "";
         String botonSi = "SI";
         boolean regresar = false;
+        Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+        intent.putExtra("usuario", usuario);
 
         if (accion.equals("inicio")) {
             String sucsReg = usuario.getSucRegistradas();
@@ -268,22 +270,19 @@ public class RegistrarContadores extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
-                    if (valRegresar) startActivity(new Intent(RegistrarContadores.this,
-                            HomeEmpleado.class));
+                    if (valRegresar) startActivity(intent);
                 }
             });
-            if (botonSi == "OK") {
+            if (botonSi.equals("OK")) {
                 siButton.setText("OK");
                 noButton.setVisibility(View.GONE);
             } else {
                 noButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        startActivity(new Intent(RegistrarContadores.this,
-                                HomeEmpleado.class));
-                        dialog.dismiss();
-                        if (valRegresar) startActivity(new Intent(RegistrarContadores.this,
-                                HomeEmpleado.class));
+//                        startActivity(intent);
+//                        dialog.dismiss();
+                        if (valRegresar) startActivity(intent);
                     }
                 });
             }

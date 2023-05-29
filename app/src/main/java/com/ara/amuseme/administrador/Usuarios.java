@@ -228,7 +228,7 @@ public class Usuarios extends AppCompatActivity implements androidx.appcompat.wi
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 filtrarPor = filtro.get(spin_filter.getSelectedItemPosition());
-                usuariosAdapter = new ItemsAdapter(getApplicationContext(), usuarios, filtrarPor);
+                usuariosAdapter = new ItemsAdapter(getApplicationContext(), usuarios, filtrarPor, "usuario");
                 rv_items.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
                 rv_items.setAdapter(usuariosAdapter);
             }

@@ -91,6 +91,8 @@ public class RegistrarVisita extends AppCompatActivity {
         String mensaje = "";
         String botonSi = "SI";
         boolean regresar = false;
+        Intent intent = new Intent(RegistrarVisita.this, HomeEmpleado.class);
+        intent.putExtra("usuario", usuario);
 
         if (accion.equals("inicio")){
             String sucsAsignadas = usuario.getSucursales();
@@ -121,8 +123,7 @@ public class RegistrarVisita extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
-                    if (valRegresar) startActivity(new Intent(RegistrarVisita.this,
-                            HomeEmpleado.class));
+                    if (valRegresar) startActivity(intent);
                 }
             });
             if (botonSi == "OK") {
@@ -132,11 +133,9 @@ public class RegistrarVisita extends AppCompatActivity {
                 noButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        startActivity(new Intent(RegistrarVisita.this,
-                                HomeEmpleado.class));
+                        startActivity(intent);
                         dialog.dismiss();
-                        if (valRegresar) startActivity(new Intent(RegistrarVisita.this,
-                                HomeEmpleado.class));
+                        if (valRegresar) startActivity(intent);
                     }
                 });
             }
@@ -183,12 +182,13 @@ public class RegistrarVisita extends AppCompatActivity {
         ImageView imgCloseDialog = dialog.findViewById(R.id.imgCloseDialog);
         Button sucDoneButton = dialog.findViewById(R.id.sucDoneButton);
         mensajeFinal.setText(mensaje);
+        Intent intent = new Intent(RegistrarVisita.this, HomeEmpleado.class);
+        intent.putExtra("usuario", usuario);
 
         imgCloseDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                Intent intent = new Intent(RegistrarVisita.this, HomeEmpleado.class);
                 startActivity(intent);
             }
         });
@@ -196,7 +196,6 @@ public class RegistrarVisita extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                Intent intent = new Intent(RegistrarVisita.this, HomeEmpleado.class);
                 startActivity(intent);
             }
         });
