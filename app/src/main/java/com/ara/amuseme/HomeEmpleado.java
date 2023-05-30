@@ -32,8 +32,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
@@ -100,6 +98,41 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         getUbicacion();
         getTokensToNotif();
 
+        getTestMaquinas();
+
+    }
+
+    public void getTestMaquinas() {
+        ProgressDialog progressDialog = new ProgressDialog(HomeEmpleado.this);
+        progressDialog.setMessage("Obteniendo tipos de máquinas...");
+        progressDialog.setCancelable(false);
+        progressDialog.show();
+        OnCompleteListener<QuerySnapshot> listenerUsuario = new OnCompleteListener<QuerySnapshot>() {
+            @Override
+            public void onComplete(Task<QuerySnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+                    for (DocumentSnapshot ds: task.getResult().getDocuments()){
+                        if (ds.get("alias").toString().equals("APGT01")) {
+//                            Toast.makeText(HomeEmpleado.this, ds.get("alias").toString(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HomeEmpleado.this, ds.get("contadoresActuales").toString(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HomeEmpleado.this, ds.get("contadoresActuales").getClass().toString(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HomeEmpleado.this, (HashMap) ds.get("contadoresActuales").get("*coins"), Toast.LENGTH_SHORT).show();
+                            HashMap<String, String> test = (HashMap<String, String>) ds.get("contadoresActuales");
+//                            Toast.makeText(HomeEmpleado.this, test.toString(), Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(HomeEmpleado.this, test.get("*coins"), Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                    progressDialog.cancel();
+                }
+            }
+        };
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("maquinas").orderBy("alias").get()
+                .addOnCompleteListener(listenerUsuario);
     }
 
     @Override
@@ -250,56 +283,27 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
         progressDialog.setCancelable(false);
         progressDialog.show();
 
-        FirebaseDatabase dbref = FirebaseDatabase.getInstance();
-        OnCompleteListener<DataSnapshot> listener = new OnCompleteListener<DataSnapshot>() {
+        OnCompleteListener<QuerySnapshot> listenerMaquina = new OnCompleteListener<QuerySnapshot>() {
             @Override
-            public void onComplete(Task<DataSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
-                }
-                else {
-//                    Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                    for (DataSnapshot ds: task.getResult().getChildren()) {
-                        maquinas.add(ds.getKey());
-                    }
-                }
-                progressDialog.cancel();
-            }
-        };
-        dbref.getReference("maquinas1").get().addOnCompleteListener(listener);
-        /*OnCompleteListener<DocumentSnapshot> listenerUsuario = new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(Task<DocumentSnapshot> task) {
+            public void onComplete(Task<QuerySnapshot> task) {
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
-                    String contRegistro = task.getResult().getData().get("contRegistro").toString();
-                    String correo = task.getResult().getData().get("correo").toString();
-                    String id = task.getResult().getData().get("id").toString();
-                    String maqRegSuc = task.getResult().getData().get("maqRegSuc").toString();
-                    String nombre = task.getResult().getData().get("nombre").toString();
-                    String porDepositar = task.getResult().getData().get("porDepositar").toString();
-                    String pw = task.getResult().getData().get("pw").toString();
-                    String rol = task.getResult().getData().get("rol").toString();
-                    String status = task.getResult().getData().get("status").toString();
-                    String sucRegistradas = task.getResult().getData().get("sucRegistradas").toString();
-                    String sucursales = task.getResult().getData().get("sucursales").toString();
-                    String tel = task.getResult().getData().get("tel").toString();
-                    String token = task.getResult().getData().get("token").toString();
-                    usuario = new Usuario(contRegistro, correo, id, maqRegSuc, nombre, porDepositar,
-                            pw, rol, status, sucRegistradas, sucursales, tel, token);
-                    setTitle(nombre);
+                    for (DocumentSnapshot ds: task.getResult().getDocuments()) {
+                        maquinas.add(ds.get("nombre").toString());
+                        progressDialog.dismiss();
+                    }
+//                    Toast.makeText(HomeEmpleado.this, maquinas.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
         };
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         try {
-            db.collection("usuarios").document(user.getUid()).get()
-                    .addOnCompleteListener(listenerUsuario);
+            db.collection("maquinas").get()
+                    .addOnCompleteListener(listenerMaquina);
         }catch (Exception e) {
             Toast.makeText(this, e.getMessage(), Toast.LENGTH_SHORT).show();
-        }*/
-
+        }
 
     }
 

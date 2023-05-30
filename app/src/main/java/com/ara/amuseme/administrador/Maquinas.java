@@ -33,6 +33,7 @@ import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
 import com.ara.amuseme.RegistrarContadores;
 import com.ara.amuseme.RegistrarVisita;
+import com.ara.amuseme.Utils;
 import com.ara.amuseme.herramientas.MaquinasAdapter;
 import com.ara.amuseme.herramientas.SpinnerAdapter;
 import com.ara.amuseme.herramientas.SucursalesAdapter;
@@ -156,12 +157,14 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
 
                         String contadoresActuales = "";
                         String alias = "";
+                        String id = "";
                         String imagen = "";
                         String nombre = "";
                         String observaciones = "";
                         String renta = "";
                         try {
                             alias = ds.get("alias").toString();
+                            id = ds.get("id").toString();
                             imagen = ds.get("imagen").toString();
                             nombre = ds.get("nombre").toString();
                             observaciones = ds.get("observaciones").toString();
@@ -170,7 +173,7 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
                         } catch (Exception e) {
 
                         }
-                        Maquina maquina = new Maquina(alias, imagen, nombre, observaciones, renta, contadoresActuales);
+                        Maquina maquina = new Maquina(alias, id, imagen, nombre, observaciones, renta, contadoresActuales);
                         maquinas.add(maquina);
                     }
                     crearLista();
@@ -308,7 +311,8 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
                     mostrarMensajeFinal("Máquina: " + nuevaMaquina + " agregada.");
 
                     tiposMaquinas.get(0).getContadores();
-                    Maquina maquina = new Maquina(nuevaMaquina, "", etxtAddNombre.getText().toString(),
+                    String id = Utils.generateNewId();
+                    Maquina maquina = new Maquina(nuevaMaquina, id, "", etxtAddNombre.getText().toString(),
                             etxtAddObservaciones.getText().toString(), etxtAddRenta.getText().toString(), "");
 
 

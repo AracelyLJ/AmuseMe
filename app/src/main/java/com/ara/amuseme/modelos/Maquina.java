@@ -7,6 +7,7 @@ public class Maquina implements Parcelable {
 
     private String alias;
     private String contadoresActuales;
+    private String id;
     private String imagen;
     private String nombre;
     private String observaciones;
@@ -15,6 +16,7 @@ public class Maquina implements Parcelable {
 
     public Maquina() {
         alias = "";
+        id = "";
         imagen = "";
         nombre = "";
         observaciones = "";
@@ -22,9 +24,10 @@ public class Maquina implements Parcelable {
         contadoresActuales = "";
     }
 
-    public Maquina(String alias, String imagen, String nombre, String observaciones, String renta,
+    public Maquina(String alias, String imagen, String id, String nombre, String observaciones, String renta,
                    String contadoresActuales) {
         this.alias = alias;
+        this.id = id;
         this.imagen = imagen;
         this.nombre = nombre;
         this.observaciones = observaciones;
@@ -34,6 +37,7 @@ public class Maquina implements Parcelable {
 
     protected Maquina(Parcel in) {
         alias = in.readString();
+        id = in.readString();
         imagen = in.readString();
         nombre = in.readString();
         observaciones = in.readString();
@@ -52,6 +56,14 @@ public class Maquina implements Parcelable {
             return new Maquina[size];
         }
     };
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getAlias() {
         return alias;
@@ -109,6 +121,7 @@ public class Maquina implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(alias);
+        parcel.writeString(id);
         parcel.writeString(imagen);
         parcel.writeString(nombre);
         parcel.writeString(observaciones);
@@ -121,6 +134,7 @@ public class Maquina implements Parcelable {
         return "Maquina{" +
                 "alias='" + alias + '\'' +
                 "contadoresActuales='" + contadoresActuales + '\'' +
+                ", id='" + id + '\'' +
                 ", imagen='" + imagen + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", observaciones='" + observaciones + '\'' +

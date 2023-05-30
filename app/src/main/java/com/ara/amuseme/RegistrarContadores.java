@@ -67,7 +67,7 @@ public class RegistrarContadores extends AppCompatActivity {
     private TextView txtDatosAnteriores1;
     private TextView txtDatosAnteriores2;
     private Maquina maquina;
-    private ArrayList<EditText> camposContadores;
+    private HashMap<String, EditText> camposContadores;
     private ArrayList<ImageView> camposFotos;
     private ArrayList<String> textContadores;
     private HashMap<String, Uri> mapFotos;
@@ -107,7 +107,7 @@ public class RegistrarContadores extends AppCompatActivity {
 
         // Initializations
         maquina = new Maquina();
-        camposContadores = new ArrayList<>();
+        camposContadores = new HashMap<>();
         textContadores = new ArrayList<>();
         camposFotos = new ArrayList<>();
         contRegActual = 0;
@@ -150,7 +150,10 @@ public class RegistrarContadores extends AppCompatActivity {
         btnRegistrarMaquina.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                registrarContadores();
+
+                if (validarDatos("final")) {
+                    registrarContadores();
+                }
             }
         });
 
@@ -176,6 +179,7 @@ public class RegistrarContadores extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+        intent.putExtra("usuario",usuario);
         startActivity(intent);
         finish();
     }
@@ -214,7 +218,9 @@ public class RegistrarContadores extends AppCompatActivity {
 
         String mensaje = "";
         String botonSi = "SI";
-        boolean regresar = false;
+        boolean regresarSi = false;
+        boolean regresarNo = false;
+        boolean posibleError = false;
         Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
         intent.putExtra("usuario", usuario);
 
@@ -225,40 +231,44 @@ public class RegistrarContadores extends AppCompatActivity {
             String maqRegSuc = usuario.getMaqRegSuc(); // Checar que no empieze a registrar otra
             if (!sucsReg.equals("") && sucsReg.contains(cveSucursal)) { // Checa si ya se registró esta sucursal
                 mensaje = "Esta sucursal ya fué registrada. ¿Deseas reiniciar el registo?";
-                usuario.setSucRegistradas(
-                        usuario.getSucRegistradas().replaceAll(cveSucursal, ""));
+                regresarNo = true;
 
             } else if (maqsReg.contains(maquina.getAlias())) { // Checa si ya se regisró esta máquina
                 mensaje = "Esta máquina ya fué registrada. ¿Deseas reiniciar el registro?";
+                regresarNo = true;
             } else if (!sucsAsignadas.contains(cveSucursal)) { // Checa si el user tiene esta suc asignada
                 mensaje = "No estás asignado para registrar esta sucursal. Contacta a tu administrador.";
                 botonSi = "OK";
-                regresar = true;
-                usuario.setMaqRegSuc(
-                        usuario.getMaqRegSuc().replaceAll(cveSucursal, ""));
+                regresarSi = true;
             } else if (!maqRegSuc.equals("")) {               // sucursal si no ha terminado la actual
                 String suc = usuario.getMaqRegSuc().substring(0, 2);
                 if (!suc.equals(cveSucursal)) {
                     mensaje = "No has terminado de registrar la sucursal: " + suc;
                     botonSi = "OK";
-                    regresar = true;
+                    regresarSi = true;
                 }
             }
         } else {
-            for (EditText e : camposContadores) { // Checar que se llenaron todos los campos
-                if (TextUtils.isEmpty(e.getText().toString())) {
-                    e.setError("Este campo debe ser registrado.");
+            for (Map.Entry<String, EditText> entry: camposContadores.entrySet()) {
+                String valorActual = entry.getValue().getText().toString();
+                String valorAnterior = registroAnterior.getContadores().get(entry.getKey());
+                if (TextUtils.isEmpty(valorActual)){
+                    entry.getValue().setError("Este campo debe ser registrado.");
                     return false;
+                } else if(Integer.parseInt(valorActual) < Integer.parseInt(valorAnterior)) {
+                    entry.getValue().setError("El valor del contador: " + entry.getKey() +
+                            " debe ser mayor al registro anterior.");
+                    return false;
+                } else if ((Integer.parseInt(valorActual) - Integer.parseInt(valorAnterior)) > 5000) {
+                    mensaje = "El valor del contador: " + entry.getKey() +
+                            " podría ser incorrecto. ¿Deseas continuar?";
+                    posibleError = true;
                 }
             }
-            if (mapFotos.size() != textContadores.size()) { // Checar que se tomaron todas las fotos
-                mensaje = "Es necesario tomar foto de todos los contadores.";
-                botonSi = "OK";
-            }
-            // Todo: Checar los valores de contadores no sean menores al anterior
         }
-        final boolean valRegresar = regresar;
-        if (!mensaje.equals("")) {
+        final boolean valRegresarSi = regresarSi;
+        final boolean valRegresarNo = regresarNo;
+        if (!mensaje.equals("") ) {
             Dialog dialog = new Dialog(RegistrarContadores.this);
             dialog.setContentView(R.layout.cardview_validacion_de_datos);
             // Editar texto
@@ -266,11 +276,13 @@ public class RegistrarContadores extends AppCompatActivity {
             Button siButton = dialog.findViewById(R.id.si_button);
             Button noButton = dialog.findViewById(R.id.no_button);
             mensajeFinal.setText(mensaje);
+            boolean finalPosibleError = posibleError;
             siButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
-                    if (valRegresar) startActivity(intent);
+                    if (valRegresarSi) startActivity(intent);
+                    if (finalPosibleError) registrarContadores();
                 }
             });
             if (botonSi.equals("OK")) {
@@ -280,9 +292,8 @@ public class RegistrarContadores extends AppCompatActivity {
                 noButton.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-//                        startActivity(intent);
-//                        dialog.dismiss();
-                        if (valRegresar) startActivity(intent);
+                        dialog.dismiss();
+                        if (valRegresarNo) startActivity(intent);
                     }
                 });
             }
@@ -299,7 +310,7 @@ public class RegistrarContadores extends AppCompatActivity {
         String cveMaq = "" + alias.charAt(2) + alias.charAt(3);
 
         // Agregar prize counter
-        camposContadores.add(etxtPrizes);
+        camposContadores.put("*prizes", etxtPrizes);
         camposFotos.add(btnCamPrizes);
         textContadores.add("*prizes");
 
@@ -345,7 +356,7 @@ public class RegistrarContadores extends AppCompatActivity {
 
                         textView.setText(contador.toUpperCase() + " COUNTER");
                         editTexts.add(editText);
-                        camposContadores.add(editText);
+                        camposContadores.put(contador, editText);
                         textContadores.add(contador);
                         camposFotos.add(imageView);
 
@@ -410,7 +421,6 @@ public class RegistrarContadores extends AppCompatActivity {
     }
 
     public void registrarContadores() {
-        if (!validarDatos("final")) return;
 
         // Fecha y hora
         Map<String, String> mapTime = Utils.getTime();
@@ -431,9 +441,9 @@ public class RegistrarContadores extends AppCompatActivity {
         nvoRegistro.put("sucursal", cveSucursal);
         nvoRegistro.put("tipoMaquina", cveTipo);
         HashMap<String, String> contadores = new HashMap<>();
-        for (int i = 0; i < textContadores.size(); i++) {
-            nvoRegistro.put(textContadores.get(i), camposContadores.get(i).getText().toString());
-            contadores.put(textContadores.get(i), camposContadores.get(i).getText().toString());
+        for (Map.Entry<String, EditText> entry: camposContadores.entrySet()) {
+            nvoRegistro.put(entry.getKey(), entry.getValue().getText().toString());
+            contadores.put(entry.getKey(), entry.getValue().getText().toString());
         }
 
         registroActual = new RegistroMaquina(maquina.getAlias(),
@@ -491,7 +501,7 @@ public class RegistrarContadores extends AppCompatActivity {
             usuario.setSucRegistradas("");
             usuario.setContRegistro(String.valueOf(contRegActual+1));
             regresarSinDialog = false;
-            enviarCalculos();
+//            enviarCalculos();
         }
         usuario.setMaqRegSuc(maquinasRegistradas.toString()
                 .replace("[", "").replace("]", ""));
@@ -501,18 +511,22 @@ public class RegistrarContadores extends AppCompatActivity {
         db.collection("registros_maquinas").document(idUsuario).
                 collection(contRegActual+"").document(alias).set(registroActual);
 
+        // Registrar contadores actuales en máquina
+//        db.collection("maquinas").document(maquina.getId()).set(maquina);
+
         registrarCalculo();
 
         if (regresarSinDialog) {
             Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+            intent.putExtra("usuario", usuario);
             startActivity(intent);
         } else {
-            FCMSend.pushNotification(
+            /*FCMSend.pushNotification(
                     RegistrarContadores.this,
                     tokensNotif,
                     usuario.getToken(),
                     "AmuseMe Registros",
-                    mensajeFinal);
+                    mensajeFinal);*/
             mostrarMensajeFinal(mensajeFinal);
         }
 
@@ -656,6 +670,7 @@ public class RegistrarContadores extends AppCompatActivity {
             public void onClick(View view) {
                 dialog.dismiss();
                 Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+                intent.putExtra("usuario", usuario);
                 startActivity(intent);
             }
         });
@@ -664,6 +679,7 @@ public class RegistrarContadores extends AppCompatActivity {
             public void onClick(View view) {
                 dialog.dismiss();
                 Intent intent = new Intent(RegistrarContadores.this, HomeEmpleado.class);
+                intent.putExtra("usuario", usuario);
                 startActivity(intent);
             }
         });

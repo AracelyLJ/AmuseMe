@@ -122,11 +122,12 @@ public class QRCodeReader extends AppCompatActivity {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
                     String alias = task.getResult().getDocuments().get(0).get("alias").toString();
+                    String id = task.getResult().getDocuments().get(0).get("id").toString();
                     String imagen = task.getResult().getDocuments().get(0).get("imagen").toString();
                     String nombre = task.getResult().getDocuments().get(0).get("nombre").toString();
                     String observaciones = task.getResult().getDocuments().get(0).get("observaciones").toString();
                     String renta = task.getResult().getDocuments().get(0).get("renta").toString();
-                    maquina = new Maquina(alias, imagen, nombre, observaciones, renta,"");
+                    maquina = new Maquina(alias, id, imagen, nombre, observaciones, renta,"");
 
                     Intent i;
                     if (actividad.equals("contadores")) {

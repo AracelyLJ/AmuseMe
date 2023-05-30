@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Random;
 import java.util.TimeZone;
 
 public class Utils {
@@ -97,5 +98,20 @@ public class Utils {
         mapTime.put("hora", hora);
         mapTime.put("numSemana", numSemana+"");
         return mapTime;
+    }
+
+    public static String generateNewId() {
+        Random rand = new Random();
+
+        String newId = "12345678901234567890";
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            newId = rand.ints(48, 123)
+                    .filter(num -> (num<58 || num>64) && (num<91 || num>96))
+                    .limit(20)
+                    .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
+                            StringBuffer::append)
+                    .toString();
+        }
+        return newId;
     }
 }
