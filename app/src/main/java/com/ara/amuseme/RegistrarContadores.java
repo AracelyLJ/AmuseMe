@@ -252,14 +252,16 @@ public class RegistrarContadores extends AppCompatActivity {
             for (Map.Entry<String, EditText> entry: camposContadores.entrySet()) {
                 String valorActual = entry.getValue().getText().toString();
                 String valorAnterior = registroAnterior.getContadores().get(entry.getKey());
-                if (TextUtils.isEmpty(valorActual)){
+                if (TextUtils.isEmpty(valorActual)){ // Validar que no hay campos vacíos
                     entry.getValue().setError("Este campo debe ser registrado.");
                     return false;
                 } else if(Integer.parseInt(valorActual) < Integer.parseInt(valorAnterior)) {
+                    // Validar que los datos no sean menores al registro anterior
                     entry.getValue().setError("El valor del contador: " + entry.getKey() +
                             " debe ser mayor al registro anterior.");
                     return false;
                 } else if ((Integer.parseInt(valorActual) - Integer.parseInt(valorAnterior)) > 5000) {
+                    // Revisar si el valor es mucho mas grande que el anterior
                     mensaje = "El valor del contador: " + entry.getKey() +
                             " podría ser incorrecto. ¿Deseas continuar?";
                     posibleError = true;
@@ -449,6 +451,7 @@ public class RegistrarContadores extends AppCompatActivity {
         registroActual = new RegistroMaquina(maquina.getAlias(),
                 usuario.getContRegistro(), fecha, hora, maquina.getNombre(),
                 String.valueOf(numSemana), cveSucursal, cveTipo, ubicacion,idUsuario,contadores);
+        maquina.setContadoresActuales(contadores.toString());
 
         // Subir fotos de contadores registrados
         uploadImages();
@@ -506,13 +509,15 @@ public class RegistrarContadores extends AppCompatActivity {
         usuario.setMaqRegSuc(maquinasRegistradas.toString()
                 .replace("[", "").replace("]", ""));
 
+
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("usuarios").document(idUsuario).set(usuario);
         db.collection("registros_maquinas").document(idUsuario).
                 collection(contRegActual+"").document(alias).set(registroActual);
-
         // Registrar contadores actuales en máquina
-//        db.collection("maquinas").document(maquina.getId()).set(maquina);
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("contadoresActuales",contadores);
+        db.collection("maquinas").document(maquina.getId()).update(map);
 
         registrarCalculo();
 

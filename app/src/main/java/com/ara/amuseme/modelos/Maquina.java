@@ -24,7 +24,7 @@ public class Maquina implements Parcelable {
         contadoresActuales = "";
     }
 
-    public Maquina(String alias, String imagen, String id, String nombre, String observaciones, String renta,
+    public Maquina(String alias, String id, String imagen, String nombre, String observaciones, String renta,
                    String contadoresActuales) {
         this.alias = alias;
         this.id = id;
