@@ -216,7 +216,7 @@ public class TiposMaquinas extends AppCompatActivity implements androidx.appcomp
                     nuevoTipoMaquina.setClave(etxtClave.getText().toString().toUpperCase());
                     nuevoTipoMaquina.setObservaciones(etxtObservaciones.getText().toString());
                     nuevoTipoMaquina.setContadores(contadores);
-                    nuevoTipoMaquina.setId(generateNewId());
+                    nuevoTipoMaquina.setId(Utils.generateNewId(20));
                     createTipoMaquina(nuevoTipoMaquina);
 
                     dialog.cancel();
@@ -252,20 +252,5 @@ public class TiposMaquinas extends AppCompatActivity implements androidx.appcomp
                     }
                 });
 
-    }
-
-    public String generateNewId() {
-        Random rand = new Random();
-
-        String newId = "12345678901234567890";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            newId = rand.ints(48, 123)
-                    .filter(num -> (num<58 || num>64) && (num<91 || num>96))
-                    .limit(20)
-                    .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
-                            StringBuffer::append)
-                    .toString();
-        }
-        return newId;
     }
 }

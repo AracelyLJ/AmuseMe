@@ -118,7 +118,7 @@ public class InfoSucursales extends AppCompatActivity implements View.OnClickLis
     public void submitCambios(){
         String errorMsg = "Este campo no debe estar vacío";
         if (etxtClave.getText().toString().equals("")) etxtClave.setError(errorMsg); else
-        if (etxtNombre.getText().toString().equals("")) etxtClave.setError(errorMsg); else
+        if (etxtNombre.getText().toString().equals("")) etxtNombre.setError(errorMsg); else
         {
             sucursal.setClave(etxtClave.getText().toString());
             sucursal.setNombre(etxtNombre.getText().toString());

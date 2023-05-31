@@ -247,6 +247,8 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
         ArrayList<String> strTipos = new ArrayList<>();
         for (Sucursal s: sucursales) strSucursales.add(s.getClave() + " - " + s.getNombre());
         for (TipoMaquina t: tiposMaquinas) strTipos.add(t.getClave() + " - " + t.getNombre());
+        etxtAddNombre.setText(Utils.generateNewId(8).toUpperCase());
+        etxtAddNombre.setEnabled(false);
 
         spin_sucursal.setAdapter(new SpinnerAdapter(this, android.R.layout.simple_list_item_1, strSucursales));
         spin_sucursal.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -302,20 +304,24 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
                     // Agregar contadores
                     int cont = 0;
                     String [] contadores = tipoMaqSeleccionada.getContadores().split(",");
-                    do {
-                        // TODO: agregar los contadores actuales
-                        cont += 3;
-                    } while (cont < contadores.length);
+
 
 
                     mostrarMensajeFinal("Máquina: " + nuevaMaquina + " agregada.");
 
                     tiposMaquinas.get(0).getContadores();
-                    String id = Utils.generateNewId();
-                    Maquina maquina = new Maquina(nuevaMaquina, id, "", etxtAddNombre.getText().toString(),
+                    String nombre = etxtAddNombre.getText().toString();
+                    String id = Utils.generateNewId(20);
+                    Maquina maquina = new Maquina(nuevaMaquina, id, "", nombre,
                             etxtAddObservaciones.getText().toString(), etxtAddRenta.getText().toString(), "");
 
+                    String sucMaquinas = sucSeleccionada.getMaquinas() + "," + nuevaMaquina;
+                    Map<String, Object> mapMaquinas = new HashMap<>();
+                    mapMaquinas.put("maquinas",sucMaquinas);
 
+                    FirebaseFirestore.getInstance().collection("maquinas").document(maquina.getId()).set(maquina);
+                    FirebaseFirestore.getInstance().collection("sucursal")
+                            .document(sucSeleccionada.getId()).update(mapMaquinas);
                     dialog.cancel();
                 }
             }

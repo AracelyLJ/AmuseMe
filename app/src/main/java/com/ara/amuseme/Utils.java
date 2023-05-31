@@ -100,14 +100,14 @@ public class Utils {
         return mapTime;
     }
 
-    public static String generateNewId() {
+    public static String generateNewId(int size) {
         Random rand = new Random();
 
         String newId = "12345678901234567890";
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
             newId = rand.ints(48, 123)
                     .filter(num -> (num<58 || num>64) && (num<91 || num>96))
-                    .limit(20)
+                    .limit(size)
                     .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
                             StringBuffer::append)
                     .toString();

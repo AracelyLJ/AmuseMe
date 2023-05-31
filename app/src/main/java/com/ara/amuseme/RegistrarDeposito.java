@@ -156,7 +156,7 @@ public class RegistrarDeposito extends AppCompatActivity {
         if (!validarDatos()){
             return;
         }
-        id_deposito = generateNewId();
+        id_deposito = Utils.generateNewId(20);
         Deposito deposito = new Deposito(
                 time.get("hora"),
                 time.get("fecha"),
@@ -294,19 +294,5 @@ public class RegistrarDeposito extends AppCompatActivity {
         dialog.show();
     }
 
-    public String generateNewId() {
-        Random rand = new Random();
-
-        String newId = "12345678901234567890";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            newId = rand.ints(48, 123)
-                    .filter(num -> (num<58 || num>64) && (num<91 || num>96))
-                    .limit(20)
-                    .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
-                            StringBuffer::append)
-                    .toString();
-        }
-        return newId;
-    }
 
 }

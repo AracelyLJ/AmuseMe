@@ -28,6 +28,7 @@ import android.widget.Toast;
 
 import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
+import com.ara.amuseme.Utils;
 import com.ara.amuseme.herramientas.SpinnerAdapter;
 import com.ara.amuseme.herramientas.SucursalesAdapter;
 import com.ara.amuseme.herramientas.TiposAdapter;
@@ -206,7 +207,7 @@ public class Sucursales extends AppCompatActivity implements SearchView.OnQueryT
                 if (sucursalesExistentes.contains(etxtClave.getText().toString().toUpperCase())) etxtClave.setError("Esta clave ya existe en la base de datos.");
                 else {
                     String clave = etxtClave.getText().toString();
-                    String id = generateNewId();
+                    String id = Utils.generateNewId(20);
                     String nombre = etxtNombre.getText().toString();
                     String maquinas = "";
                     String ubicacion = "";
@@ -241,20 +242,5 @@ public class Sucursales extends AppCompatActivity implements SearchView.OnQueryT
                     }
                 });
 
-    }
-
-    public String generateNewId() {
-        Random rand = new Random();
-
-        String newId = "12345678901234567890";
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            newId = rand.ints(48, 123)
-                    .filter(num -> (num<58 || num>64) && (num<91 || num>96))
-                    .limit(20)
-                    .mapToObj(c -> (char)c).collect(StringBuffer::new, StringBuffer::append,
-                            StringBuffer::append)
-                    .toString();
-        }
-        return newId;
     }
 }
