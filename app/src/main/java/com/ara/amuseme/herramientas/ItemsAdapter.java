@@ -146,7 +146,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemViewHolder> {
     public void goRegistro(Usuario usuario) {
         Intent i = new Intent(context, RegistrosMaquinasID.class);
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        i.putExtra("usuario", usuario);
+        i.putExtra("usuarioSeleccionado", usuario);
         context.startActivity(i);
     }
 

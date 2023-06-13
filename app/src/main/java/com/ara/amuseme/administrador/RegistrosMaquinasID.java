@@ -24,6 +24,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -53,7 +54,7 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
 
         Bundle extras = getIntent().getExtras();
         if (extras != null) {
-            usuario_seleccionado = getIntent().getExtras().getParcelable("usuario");
+            usuario_seleccionado = getIntent().getExtras().getParcelable("usuarioSeleccionado");
             setTitle(usuario_seleccionado.getNombre());
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(RegistrosMaquinasID.this);
@@ -119,23 +120,24 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
         progressDialog.setMessage("Obteniendo usuarios...");
         progressDialog.setCancelable(false);
         progressDialog.show();
-        OnCompleteListener<DocumentSnapshot> listenerUsuario = new OnCompleteListener<DocumentSnapshot>() {
+        OnCompleteListener<DataSnapshot> listenerUsuario = new OnCompleteListener<DataSnapshot>() {
             @Override
-            public void onComplete(Task<DocumentSnapshot> task) {
+            public void onComplete(Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
                 } else {
-                    Log.d("DOCUMENTO", task.getResult().getData().toString());
-                    Toast.makeText(RegistrosMaquinasID.this, task.getResult().getData().toString(), Toast.LENGTH_SHORT).show();
-//                    crearLista();
+
+                    for (DataSnapshot ds: task.getResult().getChildren()) {
+                        Toast.makeText(RegistrosMaquinasID.this, ds.getKey(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegistrosMaquinasID.this, ds.getValue().toString(), Toast.LENGTH_SHORT).show();
+                    }
                     progressDialog.cancel();
                 }
             }
         };
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
-        db.collection("registros_maquinas")
-                .document(usuario_seleccionado.getId()).get()
-                .addOnCompleteListener(listenerUsuario);
+        FirebaseDatabase db = FirebaseDatabase.getInstance();
+        db.getReference("registros_maquinas/"+usuario_seleccionado.getId())
+                        .get().addOnCompleteListener(listenerUsuario);
     }
 }

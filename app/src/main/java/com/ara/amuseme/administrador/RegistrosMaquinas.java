@@ -74,7 +74,7 @@ public class RegistrosMaquinas extends AppCompatActivity implements androidx.app
         usuarios = new ArrayList<>();
         search_usuario.setOnQueryTextListener(this);
 
-        getRegistros();
+        getUsuarios();
 
     }
     public void onBackPressed() {
@@ -115,7 +115,7 @@ public class RegistrosMaquinas extends AppCompatActivity implements androidx.app
         return false;
     }
 
-    public void getRegistros() {
+    public void getUsuarios() {
 
         ProgressDialog progressDialog = new ProgressDialog(RegistrosMaquinas.this);
         progressDialog.setMessage("Obteniendo usuarios...");

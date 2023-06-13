@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 
 import com.ara.amuseme.administrador.Depositos;
 import com.ara.amuseme.administrador.Maquinas;
@@ -115,7 +116,8 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
                 i = new Intent(HomeAdmin.this, Depositos.class);
                 break;
             case R.id.btnRegistros:
-                i = new Intent(HomeAdmin.this, RegistrosMaquinas.class);
+//                i = new Intent(HomeAdmin.this, RegistrosMaquinas.class);
+                Toast.makeText(this, "No implementado aún.", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btnMaquinas:
                 i = new Intent(HomeAdmin.this, Maquinas.class);
