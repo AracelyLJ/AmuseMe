@@ -72,6 +72,10 @@ public class InfoDeposito extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
 
     @Override
     public void onClick(View v) {

@@ -91,6 +91,10 @@ public class Sucursales extends AppCompatActivity implements SearchView.OnQueryT
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

@@ -103,6 +103,11 @@ public class InfoTipoMaquina extends AppCompatActivity implements View.OnClickLi
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
     @Override
     public void onClick(View v) {
 

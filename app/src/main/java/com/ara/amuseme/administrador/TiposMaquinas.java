@@ -94,6 +94,11 @@ public class TiposMaquinas extends AppCompatActivity implements androidx.appcomp
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar

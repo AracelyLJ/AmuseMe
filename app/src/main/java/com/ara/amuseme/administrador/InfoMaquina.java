@@ -96,6 +96,11 @@ public class InfoMaquina extends AppCompatActivity implements View.OnClickListen
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
     public void onClick(View v) {
 
         switch (v.getId()) {

@@ -66,6 +66,7 @@ public class InfoSucursales extends AppCompatActivity implements View.OnClickLis
 
     }
 
+
     public void ponerDatos() {
         txtSucursal.setText(sucursal.getNombre());
         etxtNombre.setText(sucursal.getNombre());
@@ -89,6 +90,10 @@ public class InfoSucursales extends AppCompatActivity implements View.OnClickLis
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
     @Override
     public void onClick(View v) {
 

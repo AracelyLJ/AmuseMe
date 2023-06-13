@@ -100,6 +100,11 @@ public class InfoUsuario extends AppCompatActivity implements View.OnClickListen
         getFirebaseData();
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {

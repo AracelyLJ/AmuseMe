@@ -74,6 +74,10 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
         getRegistros();
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar

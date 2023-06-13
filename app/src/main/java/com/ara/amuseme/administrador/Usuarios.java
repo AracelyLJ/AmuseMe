@@ -117,6 +117,11 @@ public class Usuarios extends AppCompatActivity implements androidx.appcompat.wi
         get_sucursales();
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar

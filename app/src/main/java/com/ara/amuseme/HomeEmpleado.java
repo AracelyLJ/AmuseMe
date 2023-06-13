@@ -42,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 
 public class HomeEmpleado extends AppCompatActivity implements View.OnClickListener {
@@ -293,7 +294,6 @@ public class HomeEmpleado extends AppCompatActivity implements View.OnClickListe
                         maquinas.add(ds.get("nombre").toString());
                         progressDialog.dismiss();
                     }
-//                    Toast.makeText(HomeEmpleado.this, maquinas.toString(), Toast.LENGTH_SHORT).show();
                 }
             }
         };

@@ -105,6 +105,10 @@ public class Maquinas extends AppCompatActivity implements SearchView.OnQueryTex
 
     }
 
+    public void onBackPressed() {
+        finish();
+        super.onBackPressed();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar

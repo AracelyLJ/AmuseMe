@@ -252,6 +252,9 @@ public class RegistrarContadores extends AppCompatActivity {
             for (Map.Entry<String, EditText> entry: camposContadores.entrySet()) {
                 String valorActual = entry.getValue().getText().toString();
                 String valorAnterior = registroAnterior.getContadores().get(entry.getKey());
+                if (valorAnterior == null) {
+                    valorAnterior = "0";
+                }
                 if (TextUtils.isEmpty(valorActual)){ // Validar que no hay campos vacíos
                     entry.getValue().setError("Este campo debe ser registrado.");
                     return false;
@@ -456,10 +459,6 @@ public class RegistrarContadores extends AppCompatActivity {
         // Subir fotos de contadores registrados
         uploadImages();
 
-        // Subir registro
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        database.getReference("registros_maquinas/" + idUsuario + "/"
-                + (contRegActual)).child(maquina.getNombre()).setValue(nvoRegistro);
 
         // Actualizar usuario
         String alias = maquina.getAlias();
@@ -510,9 +509,18 @@ public class RegistrarContadores extends AppCompatActivity {
                 .replace("[", "").replace("]", ""));
 
 
+        // Subir registro
+            // Realtime database
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database.getReference("registros_maquinas/" + idUsuario + "/"
+                + (contRegActual)).child(maquina.getNombre()).setValue(nvoRegistro);
+            // Firestore database
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("usuarios").document(idUsuario).set(usuario);
-        db.collection("registros_maquinas").document(idUsuario).
+        Map<String, Object> reg = new HashMap<>();
+        reg.put(usuario.getContRegistro(), registroActual);
+        db.collection("registros_maquinas").document(idUsuario).set(reg);
+                db.collection("registros_maquinas").document(idUsuario).
                 collection(contRegActual+"").document(alias).set(registroActual);
         // Registrar contadores actuales en máquina
         HashMap<String, Object> map = new HashMap<>();
