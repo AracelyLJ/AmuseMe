@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_gravity="center"
+    android:background="@color/colorVerdeAzul"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        app:cardBackgroundColor="@android:color/transparent"
+        app:cardElevation="0dp">
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/layout_rc"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <LinearLayout
+
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="15dp"
+                    android:background="@drawable/boton_redondo_verde"
+                    android:orientation="vertical">
+
+
+                    <TextView
+                        android:id="@+id/txtRegistro"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="center"
+                        android:textAlignment="center"
+                        android:layout_marginVertical="15dp"
+                        android:textColor="@color/colorVerdeAzul"
+                        android:text="REGISTRO:"
+                        android:textSize="30dp" />
+
+                    <TableLayout
+                        android:layout_gravity="center"
+                        android:padding="10dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <TableRow>
+                            <TextView
+                                android:textSize="12sp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textColor="@color/colorVerdeAzul"
+                                
+                                android:text="USUARIO:"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/txtUsuario"
+                                android:gravity="left"
+                                android:maxLines="3"
+                                android:ellipsize="end"
+                                 />
+                        </TableRow>
+                        <TableRow>
+                            <TextView
+                                android:textSize="12sp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textColor="@color/colorVerdeAzul"
+                                android:text="ALIAS:"/>
+                            <TextView
+                                android:id="@+id/txtAlias"
+                                android:gravity="left"
+                                 />
+                        </TableRow>
+                        <TableRow>
+                            <TextView
+                                android:textSize="12sp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textColor="@color/colorVerdeAzul"
+                                
+                                android:text="NOMBRE MAQUINA:"/>
+                            <TextView
+                                android:id="@+id/txtNombre"
+                                android:gravity="left"
+                                 />
+                        </TableRow>
+                        <TableRow>
+                            <TextView
+                                android:textSize="12sp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textColor="@color/colorVerdeAzul"
+                                
+                                android:text="Fecha:"/>
+                            <TextView
+                                android:id="@+id/txtFecha"
+                                android:gravity="left"
+                                 />
+                        </TableRow>
+                        <TableRow>
+                            <TextView
+                                android:textSize="12sp"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="left"
+                                android:textColor="@color/colorVerdeAzul"
+                                
+                                android:text="HORA:"/>
+                            <TextView
+                                android:id="@+id/txtHora"
+                                android:gravity="left"
+                                 />
+                        </TableRow>
+                    </TableLayout>
+
+                    <TextView
+                        android:textSize="12sp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:textColor="@color/colorVerdeAzul"
+                        android:text="CONTADORES:"/>
+
+                    <LinearLayout
+                        android:id="@+id/llContadores"
+                        android:gravity="center"
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+
+                    <LinearLayout
+                        android:layout_gravity="center"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+                        <android.widget.Button
+                            android:id="@+id/btnRegresar"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/ic_back_foreground"/>
+                        <android.widget.Button
+                            android:id="@+id/btnEditar"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/ic_edit_foreground"/>
+                        <android.widget.Button
+                            android:id="@+id/btnBorrar"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            android:layout_margin="10dp"
+                            android:background="@drawable/ic_delete"/>
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </ScrollView>
+
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

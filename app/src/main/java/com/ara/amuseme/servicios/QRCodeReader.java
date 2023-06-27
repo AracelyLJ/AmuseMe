@@ -76,6 +76,7 @@ public class QRCodeReader extends AppCompatActivity {
                                         @Override
                                         public void onClick(DialogInterface dialogInterface, int i) {
                                             Intent intent = new Intent(QRCodeReader.this, HomeEmpleado.class);
+                                            intent.putExtra("usuario", usuario);
                                             startActivity(intent);
                                             finish();
                                         }

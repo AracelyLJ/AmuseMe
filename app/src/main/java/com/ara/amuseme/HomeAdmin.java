@@ -116,8 +116,8 @@ public class HomeAdmin extends AppCompatActivity implements View.OnClickListener
                 i = new Intent(HomeAdmin.this, Depositos.class);
                 break;
             case R.id.btnRegistros:
-//                i = new Intent(HomeAdmin.this, RegistrosMaquinas.class);
-                Toast.makeText(this, "No implementado aún.", Toast.LENGTH_SHORT).show();
+                i = new Intent(HomeAdmin.this, RegistrosMaquinas.class);
+//                Toast.makeText(this, "No implementado aún.", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.btnMaquinas:
                 i = new Intent(HomeAdmin.this, Maquinas.class);

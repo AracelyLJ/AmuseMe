@@ -1,9 +1,14 @@
 package com.ara.amuseme.modelos;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import androidx.annotation.NonNull;
+
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegistroMaquina {
+public class RegistroMaquina implements Parcelable {
 
     private String alias;
     private String contRegistro;
@@ -46,6 +51,32 @@ public class RegistroMaquina {
         this.usuario = usuario;
         this.contadores = contadores;
     }
+
+    protected RegistroMaquina(Parcel in) {
+        alias = in.readString();
+        contRegistro = in.readString();
+        fecha = in.readString();
+        hora = in.readString();
+        nombre = in.readString();
+        semanaFiscal = in.readString();
+        sucursal = in.readString();
+        tipoMaquina = in.readString();
+        ubicacion = in.readString();
+        usuario = in.readString();
+        contadores = in.readHashMap(String.class.getClassLoader());
+    }
+
+    public static final Creator<RegistroMaquina> CREATOR = new Creator<RegistroMaquina>() {
+        @Override
+        public RegistroMaquina createFromParcel(Parcel in) {
+            return new RegistroMaquina(in);
+        }
+
+        @Override
+        public RegistroMaquina[] newArray(int size) {
+            return new RegistroMaquina[size];
+        }
+    };
 
     public HashMap<String, String> getContadores() {
         return contadores;
@@ -166,4 +197,23 @@ public class RegistroMaquina {
                 "\nHora: " + hora ;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
+        parcel.writeString(alias);
+        parcel.writeString(contRegistro);
+        parcel.writeString(fecha);
+        parcel.writeString(hora);
+        parcel.writeString(nombre);
+        parcel.writeString(semanaFiscal);
+        parcel.writeString(sucursal);
+        parcel.writeString(tipoMaquina);
+        parcel.writeString(ubicacion);
+        parcel.writeString(usuario);
+        parcel.writeMap(contadores);
+    }
 }

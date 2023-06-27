@@ -141,25 +141,29 @@ public class InfoMaquina extends AppCompatActivity implements View.OnClickListen
                 } else {
                     String contadores = task.getResult().getData().get("contadoresActuales")
                             .toString().replace("{","").replace("}","");
-                    String [] contVal = contadores.split(",");
-                    for (String cont: contVal) {
-                        String [] c = cont.split("=");
-                        TextView txt1 = new TextView(InfoMaquina.this);
-                        txt1.setTextSize(15);
-                        txt1.setText(c[0]);
+                    try {
+                        String [] contVal = contadores.split(",");
+                        for (String cont: contVal) {
+                            String [] c = cont.split("=");
+                            TextView txt1 = new TextView(InfoMaquina.this);
+                            txt1.setTextSize(15);
+                            txt1.setText(c[0]);
 
-                        EditText etxt2 = new EditText(InfoMaquina.this);
-                        etxt2.setText(c[1]);
-                        etxt2.setTextColor(getResources().getColor(R.color.colorBlack));
-                        etxt2.setEnabled(false);
-                        etxt2.setInputType(InputType.TYPE_CLASS_NUMBER);
-                        etxt2.setGravity(Gravity.CENTER);
-                        etxt2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.MATCH_PARENT));
+                            EditText etxt2 = new EditText(InfoMaquina.this);
+                            etxt2.setText(c[1]);
+                            etxt2.setTextColor(getResources().getColor(R.color.colorBlack));
+                            etxt2.setEnabled(false);
+                            etxt2.setInputType(InputType.TYPE_CLASS_NUMBER);
+                            etxt2.setGravity(Gravity.CENTER);
+                            etxt2.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,
+                                    LinearLayout.LayoutParams.MATCH_PARENT));
 
-                        contadoresActuales.put(c[0], etxt2);
-                        llContActuales.addView(txt1);
-                        llContActuales.addView(etxt2);
+                            contadoresActuales.put(c[0], etxt2);
+                            llContActuales.addView(txt1);
+                            llContActuales.addView(etxt2);
+                        }
+                    }catch (Exception e) {
+                        Log.d("Contadores", "Error agregando contadores actuales.");
                     }
                 }
             }

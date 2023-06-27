@@ -1,34 +1,56 @@
 package com.ara.amuseme.administrador;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.ara.amuseme.LoginActivity;
 import com.ara.amuseme.R;
+import com.ara.amuseme.herramientas.DepositosAdapter;
 import com.ara.amuseme.herramientas.ItemsAdapter;
+import com.ara.amuseme.herramientas.RegistrosMaquinasAdapter;
+import com.ara.amuseme.herramientas.SpinnerAdapter;
 import com.ara.amuseme.modelos.RegistroMaquina;
 import com.ara.amuseme.modelos.Usuario;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.storage.FileDownloadTask;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -41,14 +63,17 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
     private Spinner spin_filter;
     private ItemsAdapter usuariosAdapter;
     private String filtrarPor;
-    private ArrayList<RegistroMaquina> registros;
+
+    ArrayList<RegistroMaquina> registros;
+    private RegistrosMaquinasAdapter registrosAdapter;
+    private RecyclerView rv_registros;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registros_maquinas_id);
 
-        rv_cont_ids = findViewById(R.id.rv_registros);
+        rv_registros = findViewById(R.id.rv_registros);
         search_cont_id = findViewById(R.id.search_registro);
         spin_filter = findViewById(R.id.spin_filter);
 
@@ -69,10 +94,12 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
                     .setCancelable(false).show();
         }
 
-        registros = new ArrayList<>();
+         registros = new ArrayList<>();
+        registrosAdapter = new RegistrosMaquinasAdapter(getApplicationContext(), registros, filtrarPor, usuario_seleccionado);
         search_cont_id.setOnQueryTextListener(this);
 
         getRegistros();
+
     }
 
     public void onBackPressed() {
@@ -83,7 +110,7 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu items for use in the action bar
         MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_add_logout, menu);
+        inflater.inflate(R.menu.menu_logout, menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -97,6 +124,7 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
             case R.id.btn_logout:
                 FirebaseAuth.getInstance().signOut();
                 startActivity(new Intent(RegistrosMaquinasID.this, LoginActivity.class));
+                finish();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -110,14 +138,13 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
 
     @Override
     public boolean onQueryTextChange(String s) {
-//        usuariosAdapter.filtrado(s);
+        registrosAdapter.filtrado(s);
         return false;
     }
 
     public void getRegistros() {
-        Toast.makeText(this, usuario_seleccionado.getId(), Toast.LENGTH_SHORT).show();
         ProgressDialog progressDialog = new ProgressDialog(RegistrosMaquinasID.this);
-        progressDialog.setMessage("Obteniendo usuarios...");
+        progressDialog.setMessage("Obteniendo datos...");
         progressDialog.setCancelable(false);
         progressDialog.show();
         OnCompleteListener<DataSnapshot> listenerUsuario = new OnCompleteListener<DataSnapshot>() {
@@ -128,9 +155,55 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
                 } else {
 
                     for (DataSnapshot ds: task.getResult().getChildren()) {
-                        Toast.makeText(RegistrosMaquinasID.this, ds.getKey(), Toast.LENGTH_SHORT).show();
-                        Toast.makeText(RegistrosMaquinasID.this, ds.getValue().toString(), Toast.LENGTH_SHORT).show();
+                        for (DataSnapshot ds1: ds.getChildren()) {
+                            RegistroMaquina registroMaquina = new RegistroMaquina();
+                            HashMap<String, String> contadores = new HashMap<>();
+                            for (DataSnapshot ds2: ds1.getChildren()) {
+                                if (ds2.getKey().startsWith("*")) {
+                                    contadores.put(ds2.getKey(), ds2.getValue().toString());
+                                }
+                                try {
+                                    switch (ds2.getKey()) {
+                                        case "alias":
+                                            registroMaquina.setAlias(ds2.getValue().toString());
+                                            break;
+                                        case "contRegistro":
+                                            registroMaquina.setContRegistro(ds2.getValue().toString());
+                                            break;
+                                        case "fecha":
+                                            registroMaquina.setFecha(ds2.getValue().toString());
+                                            break;
+                                        case "hora":
+                                            registroMaquina.setHora(ds2.getValue().toString());
+                                            break;
+                                        case "nombre":
+                                            registroMaquina.setNombre(ds2.getValue().toString());
+                                            break;
+                                        case "semanaFiscal":
+                                            registroMaquina.setSemanaFiscal(ds2.getValue().toString());
+                                            break;
+                                        case "sucursal":
+                                            registroMaquina.setSucursal(ds2.getValue().toString());
+                                            break;
+                                        case "tipoMaquina":
+                                            registroMaquina.setTipoMaquina(ds2.getValue().toString());
+                                            break;
+                                        case "ubicacion":
+                                            registroMaquina.setUbicacion(ds2.getValue().toString());
+                                            break;
+                                        case "usuario":
+                                            registroMaquina.setUsuario(ds2.getValue().toString());
+                                            break;
+                                    }
+                                } catch (Exception e) {
+                                    Toast.makeText(RegistrosMaquinasID.this," Error obteniendo registros", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                            registroMaquina.setContadores(contadores);
+                            registros.add(registroMaquina);
+                        }
                     }
+                    crearLista();
                     progressDialog.cancel();
                 }
             }
@@ -139,5 +212,30 @@ public class RegistrosMaquinasID extends AppCompatActivity implements androidx.a
         FirebaseDatabase db = FirebaseDatabase.getInstance();
         db.getReference("registros_maquinas/"+usuario_seleccionado.getId())
                         .get().addOnCompleteListener(listenerUsuario);
+    }
+
+    public void crearLista() {
+        // Select filter
+        ArrayList<String> filtro = new ArrayList<>();
+        filtro.add("Fecha");
+        filtro.add("Alias");
+        filtro.add("ID Contador");
+        filtro.add("Semana Fiscal");
+
+        spin_filter.setAdapter(new SpinnerAdapter(this, R.layout.spin_value, filtro));
+        spin_filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                filtrarPor = filtro.get(spin_filter.getSelectedItemPosition());
+                registrosAdapter = new RegistrosMaquinasAdapter(getApplicationContext(), registros, filtrarPor, usuario_seleccionado);
+                rv_registros.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+                rv_registros.setAdapter(registrosAdapter);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 }
