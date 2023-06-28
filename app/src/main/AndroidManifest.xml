@@ -22,7 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AmuseMe">
         <activity
-            android:name=".administrador.RegistrosMaquinasInfo"
+            android:name=".administrador.InfoRegistrosMaquinas"
             android:exported="false" />
         <activity
             android:name=".administrador.InfoMaquina"

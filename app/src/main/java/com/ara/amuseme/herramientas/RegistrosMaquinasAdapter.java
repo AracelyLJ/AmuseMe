@@ -1,37 +1,24 @@
 package com.ara.amuseme.herramientas;
 
 import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.ara.amuseme.HomeAdmin;
 import com.ara.amuseme.R;
-import com.ara.amuseme.administrador.InfoDeposito;
-import com.ara.amuseme.administrador.Maquinas;
-import com.ara.amuseme.administrador.RegistrosMaquinasID;
-import com.ara.amuseme.administrador.RegistrosMaquinasInfo;
-import com.ara.amuseme.modelos.Deposito;
+import com.ara.amuseme.administrador.InfoRegistrosMaquinas;
 import com.ara.amuseme.modelos.RegistroMaquina;
 import com.ara.amuseme.modelos.Usuario;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RegistrosMaquinasAdapter extends RecyclerView.Adapter<RegistrosMaquinasViewHolder>{
@@ -83,7 +70,7 @@ public class RegistrosMaquinasAdapter extends RecyclerView.Adapter<RegistrosMaqu
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(context, RegistrosMaquinasInfo.class);
+                Intent intent = new Intent(context, InfoRegistrosMaquinas.class);
                 intent.putExtra("registro", registros.get(position));
                 intent.putExtra("usuario_seleccionado", usuario_actual);
                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

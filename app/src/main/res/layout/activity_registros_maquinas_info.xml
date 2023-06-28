@@ -141,6 +141,15 @@
                         android:layout_height="wrap_content"
                         android:orientation="vertical" />
 
+                    <android.widget.Button
+                        android:id="@+id/btnDone"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_gravity="center"
+                        android:visibility="gone"
+                        android:background="@drawable/ic_done_foreground"/>
+
                     <LinearLayout
                         android:layout_gravity="center"
                         android:layout_width="wrap_content"

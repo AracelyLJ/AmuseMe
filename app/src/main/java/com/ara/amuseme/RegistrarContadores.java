@@ -255,6 +255,10 @@ public class RegistrarContadores extends AppCompatActivity {
                 if (valorAnterior == null) {
                     valorAnterior = "0";
                 }
+                else if (!mapFotos.containsKey(entry.getKey())) {
+                    entry.getValue().setError("Es necesario tomar foto de este contador.");
+                    return false;
+                }
                 if (TextUtils.isEmpty(valorActual)){ // Validar que no hay campos vacíos
                     entry.getValue().setError("Este campo debe ser registrado.");
                     return false;
@@ -503,7 +507,7 @@ public class RegistrarContadores extends AppCompatActivity {
             usuario.setSucRegistradas("");
             usuario.setContRegistro(String.valueOf(contRegActual+1));
             regresarSinDialog = false;
-//            enviarCalculos();
+            enviarCalculos();
         }
         usuario.setMaqRegSuc(maquinasRegistradas.toString()
                 .replace("[", "").replace("]", ""));
@@ -520,8 +524,8 @@ public class RegistrarContadores extends AppCompatActivity {
         Map<String, Object> reg = new HashMap<>();
         reg.put(usuario.getContRegistro(), registroActual);
         db.collection("registros_maquinas").document(idUsuario).set(reg);
-                db.collection("registros_maquinas").document(idUsuario).
-                collection(contRegActual+"").document(alias).set(registroActual);
+        db.collection("registros_maquinas").document(idUsuario).
+            collection(contRegActual+"").document(alias).set(registroActual);
         // Registrar contadores actuales en máquina
         HashMap<String, Object> map = new HashMap<>();
         map.put("contadoresActuales",contadores);
@@ -534,12 +538,12 @@ public class RegistrarContadores extends AppCompatActivity {
             intent.putExtra("usuario", usuario);
             startActivity(intent);
         } else {
-            /*FCMSend.pushNotification(
+            FCMSend.pushNotification(
                     RegistrarContadores.this,
                     tokensNotif,
                     usuario.getToken(),
                     "AmuseMe Registros",
-                    mensajeFinal);*/
+                    mensajeFinal);
             mostrarMensajeFinal(mensajeFinal);
         }
 
