@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -109,7 +110,10 @@ public class InfoRegistrosMaquinas extends AppCompatActivity implements View.OnC
             FirebaseStorage firebaseStorage = FirebaseStorage.getInstance();
             StorageReference storageReference = firebaseStorage.getReference(fotoPath);
 
-            imageView.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, 400));
+            imageView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            imageView.setMinimumWidth(1000);
+            imageView.setMinimumHeight(1000);
 
             txtNombreContador.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
             txtNombreContador.setText(entry.getKey());

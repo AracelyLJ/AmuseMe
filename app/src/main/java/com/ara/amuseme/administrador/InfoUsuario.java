@@ -161,12 +161,17 @@ public class InfoUsuario extends AppCompatActivity implements View.OnClickListen
         btnBorrar.setOnClickListener(this);
         btnDone.setOnClickListener(this);
 
-        // Spinner rol
+        // Obtener selección de rol
+        int seleccion = 0;
+        while (seleccion<Utils.ROLS.length && !Utils.ROLS[seleccion].equalsIgnoreCase(usuario.getRol())){
+            seleccion++;
+        }
+            // Spinner rol
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, Utils.ROLS);
         adapter.setDropDownViewResource(android.R.layout.simple_list_item_1);
         spinRol.setAdapter(adapter);
-        spinRol.setSelection(0);
+        spinRol.setSelection(seleccion);
         spinRol.setEnabled(false);
         spinRol.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
